@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Package Manager</title>
+    </head>
+    <body>
+        <select>
+            {% for env in envs %}
+            <option value="{{ env }}" {% if loop.first %}selectect="selected"{% endif %}>{{ env }}</option>
+            {% endfor %}
+        </select>
+        <table>
+            <thead>
+                <tr>
+                    <th>Package</th>
+                    <th>Status</th>
+                    <th>Dist</th>
+                    <th>Name</th>
+                    <th>Version</th>
+                    <th>Build</th>
+                    <th>Build Number</th>
+                    <th>Channel</th>
+                    <th>Canonical Channel</th>
+                    <th>Features</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pkg in pkgs %}
+                <tr>
+                    <td>{{ pkg.package }}</td>
+                    <td>{{ pkg.status }}</td>
+                    <td>{{ pkg.dist }}</td>
+                    <td>{{ pkg.name }}</td>
+                    <td>{{ pkg.version }}</td>
+                    <td>{{ pkg.build }}</td>
+                    <td>{{ pkg.build_number }}</td>
+                    <td>{{ pkg.channel }}</td>
+                    <td>{{ pkg.canonical_channel }}</td>
+                    <td>{{ pkg.features }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

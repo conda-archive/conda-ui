@@ -1,0 +1,22 @@
+package:
+  name: wakari-app-package-manager
+  version: 1.0.0
+
+build:
+  number: {{ environ.get('BINSTAR_BUILD', 1) }}
+  entry_points:
+    - wk-app-package-manager = package_manager.server:main
+
+requirements:
+  build:
+    - python
+    - distribute
+
+  run:
+    - python
+    - flask
+    - werkzeug
+
+about:
+  home: https://github.com/ContinuumIO/wakari-app-package-manager
+  license: MIT License
