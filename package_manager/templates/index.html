@@ -11,10 +11,12 @@
     <body>
         <select>
             {% for env in envs %}
-            <option value="{{ env }}" {% if loop.first %}selectect="selected"{% endif %}>{{ env }}</option>
+            <option value="{{ env.name }}" {% if loop.first %}selectect="selected"{% endif %}>
+                {{ env.name }} {% if env.default %}*{% endif %}
+            </option>
             {% endfor %}
         </select>
-        <table>
+        <table class="table">
             <thead>
                 <tr>
                     <th>Package</th>
@@ -41,7 +43,7 @@
                     <td>{{ pkg.build_number }}</td>
                     <td>{{ pkg.channel }}</td>
                     <td>{{ pkg.canonical_channel }}</td>
-                    <td>{{ pkg.features }}</td>
+                    <td>{{ " ".join(pkg.features) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
