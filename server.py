@@ -4,17 +4,12 @@ from __future__ import print_function
 
 import sys
 import argparse
-import werkzeug.serving
 
-def start_server():
+def start_server(args):
     from package_manager import app
+    if args.debug:
+        app.debug = True
     app.run()
-
-def start_server_with_reloader():
-    def helper():
-        start_server()
-
-    werkzeug.serving.run_with_reloader(helper)
 
 def run():
     parser = argparse.ArgumentParser()
@@ -25,11 +20,7 @@ def run():
     )
 
     args = parser.parse_args(sys.argv[1:])
-
-    if args.debug:
-        start_server_with_reloader()
-    else:
-        start_server()
+    start_server(args)
 
 if __name__ == "__main__":
     try:
