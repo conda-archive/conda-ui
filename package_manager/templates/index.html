@@ -7,6 +7,27 @@
         <script src="{{ static('bootstrap-3.1.1/js/bootstrap.min.js') }}"></script>
         <link href="{{ static('bootstrap-3.1.1/css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="{{ static('font-awesome-4.1.0/css/font-awesome.min.css') }}" rel="stylesheet">
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#search").keyup(function(event) {
+                    var search = $(event.target).val();
+                    var $rows = $("#names").children("tr");
+
+                    if (search.length == 0) {
+                        $rows.removeClass("hidden");
+                    } else {
+                        $rows.each(function(index, el) {
+                            var $el = $(el);
+                            if ($el.data("conda-name").indexOf(search) == -1) {
+                                $el.addClass("hidden");
+                            } else {
+                                $el.removeClass("hidden");
+                            }
+                        });
+                    }
+                });
+            });
+        </script>
     </head>
     <body>
         <div class="navbar navbar-default">
