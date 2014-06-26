@@ -72,6 +72,7 @@ class SearchView extends Backbone.View
     initialize: (options) ->
         super(options)
         @envs = options.envs
+        @listenTo(@envs, 'filter', @on_filter)
         @render()
 
     events:
@@ -80,12 +81,24 @@ class SearchView extends Backbone.View
     tagName: 'div'
 
     render: () ->
-        $input = $('<input type="text" class="form-control" placeholder="Search packages">')
-        $form_group = $('<div class="form-group">').html($input)
-        @$el.html($form_group)
+        @$input = $('<input type="text" class="form-control" placeholder="Search packages">')
+        $form_group = $('<div class="form-group">').html(@$input)
+        @$close = $('<button type="button" class="btn btn-default" disabled="disabled"><span class="close">&times;</span></button>')
+        @$close.click(@on_click)
+        @$el.html([$form_group, "&nbsp;", @$close])
 
     on_keyup: (event) =>
-        @envs.set_filter($(event.target).val())
+        @envs.set_filter(@$input.val())
+
+    on_click: (event) =>
+        @$input.val("")
+        @envs.set_filter("")
+
+    on_filter: (filter) =>
+        if filter? and filter.length
+            @$close.removeAttr("disabled")
+        else
+            @$close.attr(disabled: "disabled")
 
 class Package extends Backbone.Model
     defaults: -> {}
@@ -119,7 +132,7 @@ class PackagesView extends Backbone.View
             name = pkg.get('name')
             pkgs = pkg.get('pkgs')
 
-            if filter? and name.indexOf(filter) == -1
+            if filter? and filter.length != 0 and name.indexOf(filter) == -1
                 continue
 
             latest_version = pkgs[pkgs.length-1].version
