@@ -15,16 +15,9 @@ class Envs extends Backbone.Collection
     get_active: () ->
         @_active || @get_default()
 
-    get_filter: () ->
-        @_filter
-
     set_active: (name) ->
         @_active = @get_by_name(name)
         @trigger("activate", @_active)
-
-    set_filter: (filter) ->
-        @_filter = filter
-        @trigger("filter", @_filter)
 
 class EnvsView extends Backbone.View
     initialize: (options) ->
@@ -236,8 +229,8 @@ class NewEnvView extends EnvModalView
 class SearchView extends Backbone.View
     initialize: (options) ->
         super(options)
-        @envs = options.envs
-        @listenTo(@envs, 'filter', @on_filter)
+        @pkgs = options.pkgs
+        @listenTo(@pkgs, 'filter', @on_filter)
         @render()
 
     events:
@@ -253,11 +246,11 @@ class SearchView extends Backbone.View
         @$el.html([$form_group, "&nbsp;", @$close])
 
     on_keyup: (event) =>
-        @envs.set_filter(@$input.val())
+        @pkgs.set_filter(@$input.val())
 
     on_click: (event) =>
         @$input.val("")
-        @envs.set_filter("")
+        @pkgs.set_filter("")
 
     on_filter: (filter) =>
         if filter? and filter.length
@@ -273,6 +266,13 @@ class Packages extends Backbone.Collection
     url: () -> "/api/pkgs"
     parse: (response) -> response.groups
 
+    get_filter: () ->
+        @_filter
+
+    set_filter: (filter) ->
+        @_filter = filter
+        @trigger("filter", @_filter)
+
 class PackagesView extends Backbone.View
 
     initialize: (options) ->
@@ -280,7 +280,7 @@ class PackagesView extends Backbone.View
         @envs = options.envs
         @pkgs = options.pkgs
         @listenTo(@envs, 'all', () => @render())
-        @listenTo(@pkgs, 'reset', () => @render())
+        @listenTo(@pkgs, 'all', () => @render())
         @render()
 
     render: () ->
@@ -291,7 +291,7 @@ class PackagesView extends Backbone.View
         $headers = $('<tr>').html($('<th>').text(text) for text in headers)
 
         installed = env.get('installed')
-        filter = @envs.get_filter()
+        filter = @pkgs.get_filter()
 
         $rows = for pkg in @pkgs.models
             name = pkg.get('name')
@@ -358,7 +358,7 @@ $(document).ready () ->
     pkgs.fetch(reset: true)
 
     new EnvsView({el: $('#envs'), envs: envs})
-    new SearchView({el: $('#search'), envs: envs})
+    new SearchView({el: $('#search'), pkgs: pkgs})
     new PackagesView({el: $('#pkgs'), envs: envs, pkgs: pkgs})
 
     $('#settings').click (event) =>
