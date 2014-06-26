@@ -12,6 +12,15 @@
         <link href="{{ static('bootstrap-3.1.1/css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="{{ static('font-awesome-4.1.0/css/font-awesome.min.css') }}" rel="stylesheet">
         <script src="{{ static('conda/conda.js') }}"></script>
+        <style>
+        .package-name {
+            cursor: pointer;
+        }
+        .packages-modal .modal-body {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        </style>
     </head>
     <body>
         <div class="navbar navbar-default">

@@ -280,6 +280,9 @@ class Packages extends Backbone.Collection
     url: () -> "/api/pkgs"
     parse: (response) -> response.groups
 
+    get_by_name: (name) ->
+        _.find(@models, (pkg) -> pkg.get('name') == name)
+
     get_filter: () ->
         @_filter
 
@@ -318,7 +321,7 @@ class PackagesView extends Backbone.View
             installed_version = installed[name]?.version
 
             $status = $('<td><input type="checkbox"></td>')
-            $name = $('<td>').text(name)
+            $name = $('<td class="package-name">').text(name).data("package-name", name)
             $installed_version = $('<td>&mdash;</td>')
             $latest_version = $('<td>').text(latest_version)
 
@@ -331,7 +334,63 @@ class PackagesView extends Backbone.View
         $table = $('<table class="table table-bordered table-striped">')
         $table.append($('<thead>').html($headers))
         $table.append($('<tbody>').html($rows))
+        $table.on("click", ".package-name", @on_name_click)
         @$el.html($table)
+
+    on_name_click: (event) =>
+        name = $(event.target).data("package-name")
+        pkg = @pkgs.get_by_name(name)
+        new PackageModalView(pkg: pkg).show()
+
+class PackageModalView extends ModalView
+
+    initialize: (options) ->
+        @pkg = options.pkg
+        super(options)
+
+    modal_size: () -> "large"
+
+    title_text: () -> @pkg.get('name')
+
+    submit_text: () -> "Install"
+
+    render_body: () ->
+        headers = ['Name', 'Version', 'Build', 'Size', 'Channel', 'Features']
+        $headers = $('<tr>').html($('<th>').text(text) for text in headers)
+
+        human_readable = (n) ->
+            if n < 1024
+                return sprintf('%d B', n)
+            k = n/1024
+            if k < 1024
+                return sprintf('%d KB', Math.round(k))
+            m = k/1024
+            if m < 1024
+                return sprintf('%.1f MB', m)
+            g = m/1024
+            return sprintf('%.2f GB', g)
+
+        $rows = for pkg in @pkg.get('pkgs')
+            $name = $('<td>').text(pkg.name)
+            $version = $('<td>').text(pkg.version)
+            $build = $('<td>').text(pkg.build)
+            $size = $('<td>').text(human_readable(pkg.size))
+            $channel = $('<td>').text(pkg.canonical_channel or pkg.channel).attr(title: pkg.channel)
+            $features = $('<td>&mdash;</td>')
+
+            if pkg.features.length > 0
+                $features.text(pkg.features.join(", "))
+
+            $('<tr>').html([$name, $version, $build, $size, $channel, $features])
+
+        $table = $('<table class="table table-bordered table-striped">')
+        $table.append($('<thead>').html($headers))
+        $table.append($('<tbody>').html($rows))
+        $table
+
+    render: () ->
+        super()
+        @$el.addClass("packages-modal")
 
 $.validator.setDefaults({
     highlight: (element) ->
