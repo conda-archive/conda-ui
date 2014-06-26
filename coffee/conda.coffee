@@ -56,10 +56,10 @@ class EnvsView extends Backbone.View
 
         @$select.change(@on_change)
 
-        @$activate_btn = @button('Activate')
-        @$delete_btn = @button('Delete')
-        @$clone_btn = @button('Clone')
-        @$new_btn = @button('New')
+        @$activate_btn = @button('Activate').click(@on_activate_click)
+        @$delete_btn = @button('Delete').click(@on_delete_click)
+        @$clone_btn = @button('Clone').click(@on_clone_click)
+        @$new_btn = @button('New').click(@on_new_click)
 
         @update_buttons()
 
@@ -86,6 +86,21 @@ class EnvsView extends Backbone.View
                 @$delete_btn.attr(disabled: "disabled")
             else
                 @$delete_btn.removeAttr("disabled")
+
+    on_activate_click: (event) =>
+        env = @envs.get_active()
+        $.ajax({url: "/api/env/#{env.name}/activate", type: 'POST'})
+
+    on_delete_click: (event) =>
+        env = @envs.get_active()
+        $.ajax({url: "/api/env/#{env.name}/delete", type: 'POST'})
+
+    on_clone_click: (event) =>
+        env = @envs.get_active()
+        $.ajax({url: "/api/env/#{env.name}/clone/#{new_name}", type: 'POST'})
+
+    on_new_click: (event) =>
+        $.ajax({url: "/api/envs/new/#{new_name}", type: 'POST'})
 
 class SearchView extends Backbone.View
     initialize: (options) ->

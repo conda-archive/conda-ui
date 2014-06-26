@@ -52,3 +52,19 @@ def api_pkgs():
         ))
 
     return jsonify(groups=groups)
+
+@app.route('/api/env/<env_name>/activate', methods=['POST'])
+def api_env_activate(env_name):
+    return jsonify(ok=True)
+
+@app.route('/api/env/<env_name>/delete', methods=['POST'])
+def api_env_delete(env_name):
+    return jsonify(ok=True)
+
+@app.route('/api/env/<env_name>/clone/<new_name>', methods=['POST'])
+def api_env_clone(env_name, new_name):
+    return jsonify(ok=True)
+
+@app.route('/api/envs/new/<new_name>', methods=['POST'])
+def api_envs_new(new_new):
+    return jsonify(ok=True)
