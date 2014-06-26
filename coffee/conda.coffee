@@ -96,10 +96,86 @@ class EnvsView extends Backbone.View
         $.ajax({url: "/api/env/#{env.name}/delete", type: 'POST'})
 
     on_clone_click: (event) =>
-        env = @envs.get_active()
-        $.ajax({url: "/api/env/#{env.name}/clone/#{new_name}", type: 'POST'})
+        new CloneEnvView({env: @envs.get_active()}).show()
 
     on_new_click: (event) =>
+        new NewEnvView().show()
+
+class ModalView extends Backbone.View
+    initialize: (options) ->
+        super(options)
+        @render()
+
+    show: () ->
+        @$el.modal('show')
+
+    hide: () ->
+        @$el.modal('hide')
+
+    toggle: () ->
+        @$el.modal('toggle')
+
+    tagName: 'div'
+
+    render: () ->
+        $close = $('<button type="button" class="close">&times;</button>').click(@on_cancel)
+        $title = $('<h4 class="modal-title">').append(@render_title())
+        $header = $('<div class="modal-header">').append([$close, $title])
+        $body = $('<div class="modal-body">').append(@render_body())
+        $submit = $('<button type="button" class="btn btn-primary"></button>').text(@submit_text()).click(@on_submit)
+        $cancel = $('<button type="button" class="btn btn-default"></button>').text(@cancel_text()).click(@on_cancel)
+        $footer = $('<div class="modal-footer">').append([$submit, $cancel])
+        $content = $('<div class="modal-content">').append([$header, $body, $footer])
+        $dialog = $('<div class="modal-dialog">').append($content)
+        @$el.addClass("modal fade").append($dialog).modal({show: false})
+        @$el.on('shown.bs.modal', @on_shown)
+        @$el.on('hidden.bs.modal', @on_hidden)
+        $('body').append(@$el)
+
+    render_title: () -> ""
+
+    render_body: () -> ""
+
+    submit_text: () -> "Submit"
+
+    cancel_text: () -> "Cancel"
+
+    on_submit: (event) =>
+
+    on_cancel: (event) =>
+        @hide()
+
+    on_shown: (event) =>
+
+    on_hidden: (event) =>
+        @remove()
+
+class SettingsView extends ModalView
+
+    render_title: () -> "Settings"
+
+    render_body: () -> "TODO: Settings"
+
+class CloneEnvView extends ModalView
+
+    render_title: () -> "CloneEnv"
+
+    render_body: () -> "TODO: CloneEnv"
+
+    submit_text: () -> "Clone"
+
+    on_submit: (event) ->
+        $.ajax({url: "/api/env/#{@env.name}/clone/#{new_name}", type: 'POST'})
+
+class NewEnvView extends ModalView
+
+    render_title: () -> "NewEnv"
+
+    render_body: () -> "TODO: NewEnv"
+
+    submit_text: () -> "Create"
+
+    on_submit: (event) ->
         $.ajax({url: "/api/envs/new/#{new_name}", type: 'POST'})
 
 class SearchView extends Backbone.View
@@ -198,3 +274,6 @@ $(document).ready () ->
     new EnvsView({el: $('#envs'), envs: envs})
     new SearchView({el: $('#search'), envs: envs})
     new PackagesView({el: $('#pkgs'), envs: envs, pkgs: pkgs})
+
+    $('#settings').click (event) =>
+        new SettingsView().show()
