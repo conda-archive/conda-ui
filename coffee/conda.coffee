@@ -89,11 +89,10 @@ class EnvsView extends Backbone.View
 
     on_activate_click: (event) =>
         env = @envs.get_active()
-        $.ajax({url: "/api/env/#{env.name}/activate", type: 'POST'})
+        $.ajax({url: "/api/env/#{env.get('name')}/activate", type: 'POST'})
 
     on_delete_click: (event) =>
-        env = @envs.get_active()
-        $.ajax({url: "/api/env/#{env.name}/delete", type: 'POST'})
+        new DeleteEnvView(envs: @envs).show()
 
     on_clone_click: (event) =>
         new CloneEnvView(envs: @envs).show()
@@ -122,8 +121,10 @@ class ModalView extends Backbone.View
         $title = $('<h4 class="modal-title">').append(@render_title())
         $header = $('<div class="modal-header">').append([$close, $title])
         $body = $('<div class="modal-body">').append(@render_body())
-        $submit = $('<button type="submit" class="btn btn-primary"></button>').text(@submit_text()).click(@on_submit)
-        $cancel = $('<button type="button" class="btn btn-default"></button>').text(@cancel_text()).click(@on_cancel)
+        $submit = $('<button type="submit" class="btn"></button>')
+        $submit.addClass("btn-" + @submit_type()).text(@submit_text()).click(@on_submit)
+        $cancel = $('<button type="button" class="btn"></button>')
+        $cancel.addClass("btn-" + @cancel_type()).text(@cancel_text()).click(@on_cancel)
         $footer = $('<div class="modal-footer">').append([$submit, $cancel])
         $content = $('<div class="modal-content">').append([$header, $body, $footer])
         $dialog = $('<div class="modal-dialog">').append($content)
@@ -133,28 +134,48 @@ class ModalView extends Backbone.View
         $('body').append(@$el)
 
     render_title: () -> ""
-
     render_body: () -> ""
 
     submit_text: () -> "Submit"
-
     cancel_text: () -> "Cancel"
 
-    on_submit: (event) =>
+    submit_type: () -> "primary"
+    cancel_type: () -> "default"
 
-    on_cancel: (event) =>
-        @hide()
+    on_submit: (event) =>
+    on_cancel: (event) => @hide()
 
     on_shown: (event) =>
-
-    on_hidden: (event) =>
-        @remove()
+    on_hidden: (event) => @remove()
 
 class SettingsView extends ModalView
 
     render_title: () -> "Settings"
 
     render_body: () -> "TODO: Settings"
+
+class DeleteEnvView extends ModalView
+
+    initialize: (options) ->
+        @envs = options.envs
+        super(options)
+
+    render_title: () ->
+        "Delete environment"
+
+    render_body: () ->
+        $name = $('<b>').text(@envs.get_active().get('name'))
+        $('<span>').append(["Do you really want to delete ", $name, " environment?"])
+
+    submit_text: () -> "Yes, remove this environment"
+    cancel_text: () -> "No, I changed my mind"
+
+    submit_type: () -> "danger"
+
+    on_submit: (event) =>
+        env = @envs.get_active()
+        $.ajax({url: "/api/env/#{env.get('name')}/delete", type: 'POST'})
+        @hide()
 
 class EnvModalView extends ModalView
 
