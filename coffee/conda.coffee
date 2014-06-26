@@ -98,36 +98,51 @@ class ModalView extends Backbone.View
         super(options)
         @render()
 
-    show: () ->
-        @$el.modal('show')
+    show: () -> @$el.modal('show')
+    hide: () -> @$el.modal('hide')
 
-    hide: () ->
-        @$el.modal('hide')
-
-    toggle: () ->
-        @$el.modal('toggle')
+    toggle: () -> @$el.modal('toggle')
 
     tagName: 'div'
 
     render: () ->
-        $close = $('<button type="button" class="close">&times;</button>').click(@on_cancel)
-        $title = $('<h4 class="modal-title">').append(@render_title())
-        $header = $('<div class="modal-header">').append([$close, $title])
+        $header = $('<div class="modal-header">').append(@render_header())
         $body = $('<div class="modal-body">').append(@render_body())
-        $submit = $('<button type="submit" class="btn"></button>')
-        $submit.addClass("btn-" + @submit_type()).text(@submit_text()).click(@on_submit)
-        $cancel = $('<button type="button" class="btn"></button>')
-        $cancel.addClass("btn-" + @cancel_type()).text(@cancel_text()).click(@on_cancel)
-        $footer = $('<div class="modal-footer">').append([$submit, $cancel])
+        $footer = $('<div class="modal-footer">').append(@render_footer())
         $content = $('<div class="modal-content">').append([$header, $body, $footer])
-        $dialog = $('<div class="modal-dialog">').append($content)
+        size_cls = switch @modal_size()
+            when "large" then "modal-lg"
+            when "small" then "modal-sm"
+            else ""
+        $dialog = $('<div class="modal-dialog">').append($content).addClass(size_cls)
         @$el.addClass("modal fade").append($dialog).modal({show: false})
         @$el.on('shown.bs.modal', @on_shown)
         @$el.on('hidden.bs.modal', @on_hidden)
         $('body').append(@$el)
 
-    render_title: () -> ""
+    modal_size: () -> "default"
+
+    title_text: () -> ""
+
+    render_header: () ->
+        $close = $('<button type="button" class="close">&times;</button>').click(@on_cancel)
+        $title = $('<h4 class="modal-title">').append(@title_text())
+        $close.add($title)
     render_body: () -> ""
+    render_footer: () ->
+        if @submit_text()?
+            $submit = $('<button type="submit" class="btn"></button>')
+                .addClass("btn-" + @submit_type()).text(@submit_text()).click(@on_submit)
+        else
+            $submit = $("")
+
+        if @cancel_text()?
+            $cancel = $('<button type="button" class="btn"></button>')
+                .addClass("btn-" + @cancel_type()).text(@cancel_text()).click(@on_cancel)
+        else
+            $cancel = $("")
+
+        $submit.add($cancel)
 
     submit_text: () -> "Submit"
     cancel_text: () -> "Cancel"
@@ -143,7 +158,7 @@ class ModalView extends Backbone.View
 
 class SettingsView extends ModalView
 
-    render_title: () -> "Settings"
+    title_text: () -> "Settings"
 
     render_body: () -> "TODO: Settings"
 
@@ -153,8 +168,7 @@ class DeleteEnvView extends ModalView
         @envs = options.envs
         super(options)
 
-    render_title: () ->
-        "Delete environment"
+    title_text: () -> "Delete environment"
 
     render_body: () ->
         $name = $('<b>').text(@envs.get_active().get('name'))
@@ -210,7 +224,7 @@ class EnvModalView extends ModalView
 
 class CloneEnvView extends EnvModalView
 
-    render_title: () -> "Clone environment"
+    title_text: () -> "Clone environment"
 
     submit_text: () -> "Clone"
 
@@ -219,7 +233,7 @@ class CloneEnvView extends EnvModalView
 
 class NewEnvView extends EnvModalView
 
-    render_title: () -> "Create environment"
+    title_text: () -> "Create environment"
 
     submit_text: () -> "Create"
 
