@@ -96,10 +96,10 @@ class EnvsView extends Backbone.View
         $.ajax({url: "/api/env/#{env.name}/delete", type: 'POST'})
 
     on_clone_click: (event) =>
-        new CloneEnvView({env: @envs.get_active()}).show()
+        new CloneEnvView(envs: @envs).show()
 
     on_new_click: (event) =>
-        new NewEnvView().show()
+        new NewEnvView(envs: @envs).show()
 
 class ModalView extends Backbone.View
     initialize: (options) ->
@@ -122,7 +122,7 @@ class ModalView extends Backbone.View
         $title = $('<h4 class="modal-title">').append(@render_title())
         $header = $('<div class="modal-header">').append([$close, $title])
         $body = $('<div class="modal-body">').append(@render_body())
-        $submit = $('<button type="button" class="btn btn-primary"></button>').text(@submit_text()).click(@on_submit)
+        $submit = $('<button type="submit" class="btn btn-primary"></button>').text(@submit_text()).click(@on_submit)
         $cancel = $('<button type="button" class="btn btn-default"></button>').text(@cancel_text()).click(@on_cancel)
         $footer = $('<div class="modal-footer">').append([$submit, $cancel])
         $content = $('<div class="modal-content">').append([$header, $body, $footer])
@@ -156,26 +156,60 @@ class SettingsView extends ModalView
 
     render_body: () -> "TODO: Settings"
 
-class CloneEnvView extends ModalView
+class EnvModalView extends ModalView
 
-    render_title: () -> "CloneEnv"
+    initialize: (options) ->
+        @envs = options.envs
+        super(options)
 
-    render_body: () -> "TODO: CloneEnv"
+    render_body: () ->
+        $label = $('<label>Environment Name</label>')
+        @$input = $('<input type="text" class="form-control" name="name" placeholder="Enter name">')
+        $help = $('<span class="help-block">Letters, digits and symbols are allowed, but don\'t use slash character.</span>')
+        $form_group = $('<div class="form-group">').append([$label, @$input, $help])
+        @$form = $('<form role="form">').append($form_group)
+        @$form.validate({
+            submitHandler: @on_form_submit
+            rules: {
+                name: {
+                    maxlength: 255
+                    required: true
+                    regex: /^[^\/]+$/
+                    fn: (el) => (name) => not @envs.get_by_name(name)?
+                }
+            }
+            messages: {
+                name: {
+                    regex: "Environment name must not contain slash (/) character."
+                    fn: "Environment with this name already exists."
+                }
+            }
+        })
+        @$form
+
+    on_submit: (event) =>
+        @$form.submit()
+
+    on_form_submit: (event) =>
+        @doit(@$input.val())
+        @hide()
+
+class CloneEnvView extends EnvModalView
+
+    render_title: () -> "Clone environment"
 
     submit_text: () -> "Clone"
 
-    on_submit: (event) ->
-        $.ajax({url: "/api/env/#{@env.name}/clone/#{new_name}", type: 'POST'})
+    doit: (new_name) ->
+        $.ajax({url: "/api/env/#{@envs.get_active()}/clone/#{new_name}", type: 'POST'})
 
-class NewEnvView extends ModalView
+class NewEnvView extends EnvModalView
 
-    render_title: () -> "NewEnv"
-
-    render_body: () -> "TODO: NewEnv"
+    render_title: () -> "Create environment"
 
     submit_text: () -> "Create"
 
-    on_submit: (event) ->
+    doit: (new_name) ->
         $.ajax({url: "/api/envs/new/#{new_name}", type: 'POST'})
 
 class SearchView extends Backbone.View

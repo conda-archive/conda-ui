@@ -66,5 +66,5 @@ def api_env_clone(env_name, new_name):
     return jsonify(ok=True)
 
 @app.route('/api/envs/new/<new_name>', methods=['POST'])
-def api_envs_new(new_new):
+def api_envs_new(new_name):
     return jsonify(ok=True)
