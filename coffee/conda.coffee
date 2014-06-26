@@ -10,7 +10,7 @@ class Envs extends Backbone.Collection
         _.find(@models, (env) -> env.get('name') == name)
 
     get_default: () ->
-        _.find(@models, (env) -> env.get('default'))
+        _.find(@models, (env) -> env.get('is_default'))
 
     get_active: () ->
         @_active || @get_default()
@@ -29,44 +29,61 @@ class Envs extends Backbone.Collection
 class EnvsView extends Backbone.View
     initialize: (options) ->
         super(options)
-        @listenTo(@collection, 'reset', @render)
-        @render()
-
-    tagName: 'select'
-
-    render: () ->
-        envs = @collection.models
-        options = for env in envs
-            name = env.get('name')
-            text = name + (if env.get('default') then ' *' else '')
-            option = $('<option>').attr(value: name).text(text)
-            if env.get('default')
-                option.attr(selected: "selected")
-            else
-                option
-        @$el.addClass("form-control").html(options)
-        @$el.change(@on_change)
-
-    on_change: (event) =>
-        @collection.set_active($(event.target).val())
-
-class EnvsToolbarView extends Backbone.View
-    initialize: (options) ->
-        super(options)
-        @view = new EnvsView(collection: options.envs)
+        @envs = options.envs
+        @listenTo(@envs, 'activate', @on_activate)
+        @listenTo(@envs, 'reset', () => @render())
         @render()
 
     tagName: 'div'
 
     button: (text) ->
-        $('<button class="btn btn-default"></button>').text(text)
+        $('<button type="button" class="btn btn-default"></button>').text(text)
 
     render: () ->
-        $select = @view.$el
-        $buttons = (@button(text) for text in ['Activate', 'Delete', 'Clone', 'New'])
-        $form_group = $('<div class="form-group">').html($select)
+        $options = for env in @envs.models
+            name = env.get('name')
+            text = name + (if env.get('is_default') then ' *' else '')
+            option = $('<option>').attr(value: name).text(text)
+            if env.get('is_default')
+                option.attr(selected: "selected")
+            else
+                option
+
+        @$select = $('<select class="form-control">').html($options)
+        $form_group = $('<div class="form-group">').html(@$select)
+
+        @$select.change(@on_change)
+
+        @$activate_btn = @button('Activate')
+        @$delete_btn = @button('Delete')
+        @$clone_btn = @button('Clone')
+        @$new_btn = @button('New')
+
+        @update_buttons()
+
+        $buttons = [@$activate_btn, @$delete_btn, @$clone_btn, @$new_btn]
         $btn_group = $('<div class="btn-group">').html($buttons)
         @$el.html([$form_group, "&nbsp;", $btn_group])
+
+    on_change: (event) =>
+        @envs.set_active($(event.target).val())
+
+    on_activate: (active) =>
+        @update_buttons(active)
+
+    update_buttons: (active) ->
+        active || (active = @envs.get_active())
+
+        if active?
+            if active.get('is_default')
+                @$activate_btn.attr(disabled: "disabled")
+            else
+                @$activate_btn.removeAttr("disabled")
+
+            if active.get('is_root')
+                @$delete_btn.attr(disabled: "disabled")
+            else
+                @$delete_btn.removeAttr("disabled")
 
 class SearchView extends Backbone.View
     initialize: (options) ->
@@ -161,6 +178,6 @@ $(document).ready () ->
     pkgs = new Packages()
     pkgs.fetch(reset: true)
 
-    new EnvsToolbarView({el: $('#envs'), envs: envs})
+    new EnvsView({el: $('#envs'), envs: envs})
     new SearchView({el: $('#search'), envs: envs})
     new PackagesView({el: $('#pkgs'), envs: envs, pkgs: pkgs})
