@@ -40,11 +40,13 @@ class EnvsView extends Backbone.View
         $('<button type="button" class="btn btn-default"></button>').text(text)
 
     render: () ->
+        active = @envs.get_active()
+
         $options = for env in @envs.models
             name = env.get('name')
             text = name + (if env.get('is_default') then ' *' else '')
             option = $('<option>').attr(value: name).text(text)
-            if env.get('is_default')
+            if env == active
                 option.attr(selected: "selected")
             else
                 option
