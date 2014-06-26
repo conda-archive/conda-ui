@@ -6,28 +6,49 @@ from conda import config
 from conda.api import get_index
 from conda.envs import Env, get_envs
 from conda.resolve import Resolve, MatchSpec
-from conda.install import linked
+from conda.install import linked, is_linked
+
+def get_resolve():
+    return Resolve(get_index(use_cache=True))
+
+def get_all_envs():
+    return [Env()] + get_envs()
+
+def get_env(name):
+    return { env.name: env for env in get_all_envs() }[name]
 
 @app.route('/')
-def index():
-    from conda.api import get_index
-    from conda.resolve import Resolve, MatchSpec
+def index_view():
+    return render_template('index.html')
 
-    envs = [Env()] + get_envs()
-    pkgs = []
+@app.route('/api/envs', methods=['GET'])
+def api_envs():
+    envs = []
 
-    resolve = Resolve(get_index(use_cache=True))
+    for env in get_all_envs():
+        installed = {}
+
+        for dist in linked(env.prefix):
+            name, version, build = dist.rsplit('-', 2)
+            meta = is_linked(env.prefix, dist)
+            files = meta.get("files", [])
+            installed[name] = dict(dist=dist, version=version, build=build, files=files)
+
+        env = env.to_dict()
+        env["installed"] = installed
+        envs.append(env)
+
+    return jsonify(envs=envs)
+
+@app.route('/api/pkgs', methods=['GET'])
+def api_pkgs():
+    resolve = get_resolve()
     groups = []
 
-    linked_pkgs = [ dist.rsplit('-', 2) for dist in linked(config.default_prefix) ]
-    installed = { name: (version, build) for (name, version, build) in linked_pkgs }
-
     for name in sorted(resolve.groups):
-        pkgs = resolve.get_pkgs(MatchSpec(name))
-        installed_version = installed.get(name)
-        if installed_version is not None:
-            installed_version = installed_version[0]
-        latest_version = pkgs[-1].version
-        groups.append((name, installed_version, latest_version, pkgs))
+        groups.append(dict(
+            name = name,
+            pkgs = [ pkg.to_dict() for pkg in resolve.get_pkgs(MatchSpec(name)) ],
+        ))
 
-    return render_template('index.html', envs=envs, groups=groups)
+    return jsonify(groups=groups)
