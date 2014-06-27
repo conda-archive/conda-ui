@@ -1,3 +1,15 @@
+human_readable = (n) ->
+    if n < 1024
+        return sprintf('%d B', n)
+    k = n/1024
+    if k < 1024
+        return sprintf('%d KB', Math.round(k))
+    m = k/1024
+    if m < 1024
+        return sprintf('%.1f MB', m)
+    g = m/1024
+    return sprintf('%.2f GB', g)
+
 class Env extends Backbone.Model
     defaults: -> {}
 
@@ -357,18 +369,6 @@ class PackageModalView extends ModalView
     render_body: () ->
         headers = ['Name', 'Version', 'Build', 'Size', 'Channel', 'Features']
         $headers = $('<tr>').html($('<th>').text(text) for text in headers)
-
-        human_readable = (n) ->
-            if n < 1024
-                return sprintf('%d B', n)
-            k = n/1024
-            if k < 1024
-                return sprintf('%d KB', Math.round(k))
-            m = k/1024
-            if m < 1024
-                return sprintf('%.1f MB', m)
-            g = m/1024
-            return sprintf('%.2f GB', g)
 
         $rows = for pkg in @pkg.get('pkgs')
             $name = $('<td>').text(pkg.name)
