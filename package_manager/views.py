@@ -53,6 +53,10 @@ def api_pkgs():
 
     return jsonify(groups=groups)
 
+@app.route('/api/env/<env_name>/install', methods=['POST'])
+def api_env_install(env_name):
+    return jsonify(ok=True)
+
 @app.route('/api/env/<env_name>/activate', methods=['POST'])
 def api_env_activate(env_name):
     return jsonify(ok=True)
