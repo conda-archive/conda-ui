@@ -482,8 +482,8 @@ class HistoryView extends Backbone.View
                             $old_version = mk_version(diff_item.version, diff_item.build)
                             style = "danger"
                         when "modify"
-                            $new_version = mk_version(diff_item.old_version, diff_item.old_build)
-                            $old_version = mk_version(diff_item.new_version, diff_item.new_build)
+                            $new_version = mk_version(diff_item.new_version, diff_item.new_build)
+                            $old_version = mk_version(diff_item.old_version, diff_item.old_build)
                             style = "info"
 
                     $('<tr>').html([$revision, $date, $name, $old_version, $new_version]).addClass(style)
