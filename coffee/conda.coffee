@@ -302,6 +302,9 @@ class Packages extends Backbone.Collection
         @_filter = filter
         @trigger("filter", @_filter)
 
+    do_filter: (name) ->
+        @_filter? and @_filter.length != 0 and name.indexOf(@_filter) == -1
+
 class PackagesView extends Backbone.View
 
     initialize: (options) ->
@@ -320,13 +323,12 @@ class PackagesView extends Backbone.View
         $headers = $('<tr>').html($('<th>').text(text) for text in headers)
 
         installed = env.get('installed')
-        filter = @pkgs.get_filter()
 
         $rows = for pkg in @pkgs.models
             name = pkg.get('name')
             pkgs = pkg.get('pkgs')
 
-            if filter? and filter.length != 0 and name.indexOf(filter) == -1
+            if @pkgs.do_filter(name)
                 continue
 
             latest_version = pkgs[pkgs.length-1].version
@@ -419,6 +421,9 @@ class InstalledView extends Backbone.View
         pkgs = _.sortBy(pkgs, (pkg) -> pkg.name)
 
         $rows = for pkg in pkgs
+            if @pkgs.do_filter(pkg.name)
+                continue
+
             $name = $('<td>').text(pkg.name)
             $version = $('<td>').text(pkg.version)
             $build = $('<td>').text(pkg.build)
@@ -440,7 +445,9 @@ class HistoryView extends Backbone.View
     initialize: (options) ->
         super(options)
         @envs = options.envs
+        @pkgs = options.pkgs
         @listenTo(@envs, 'all', () => @render())
+        @listenTo(@pkgs, 'filter', () => @render())
         @render()
 
     render: () ->
@@ -458,6 +465,9 @@ class HistoryView extends Backbone.View
 
             $rows = for history_item in history
                 for diff_item in history_item.diff
+                    if @pkgs.do_filter(diff_item.name)
+                        continue
+
                     $revision = $('<td>').text(history_item.revision)
                     $date = $('<td>').text(history_item.date)
                     $name = $('<td>').text(diff_item.name)
@@ -529,7 +539,7 @@ $(document).ready () ->
     new SearchView({el: $('#search'), pkgs: pkgs})
     new PackagesView({el: $('#pkgs'), envs: envs, pkgs: pkgs})
     new InstalledView({el: $('#installed'), envs: envs, pkgs: pkgs})
-    new HistoryView({el: $('#history'), envs: envs})
+    new HistoryView({el: $('#history'), envs: envs, pkgs: pkgs})
 
     $('#settings').click (event) =>
         new SettingsView().show()
