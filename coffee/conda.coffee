@@ -354,12 +354,13 @@ class PackagesView extends Backbone.View
     on_name_click: (event) =>
         name = $(event.target).data("package-name")
         pkg = @pkgs.get_by_name(name)
-        new PackageModalView(pkg: pkg).show()
+        new PackageModalView({pkg: pkg, envs: @envs}).show()
 
 class PackageModalView extends ModalView
 
     initialize: (options) ->
         @pkg = options.pkg
+        @envs = options.envs
         super(options)
 
     modal_size: () -> "large"
@@ -383,7 +384,12 @@ class PackageModalView extends ModalView
             if pkg.features.length > 0
                 $features.text(pkg.features.join(", "))
 
-            $('<tr>').html([$name, $version, $build, $size, $channel, $features])
+            env = @envs.get_active()
+            info = env?.get('installed')[pkg.name]
+            style = if info?.version == pkg.version and info?.build == pkg.build then "success" else ""
+
+            $columns = [$name, $version, $build, $size, $channel, $features]
+            $('<tr>').html($columns).addClass(style)
 
         $table = $('<table class="table table-bordered table-striped">')
         $table.append($('<thead>').html($headers))
