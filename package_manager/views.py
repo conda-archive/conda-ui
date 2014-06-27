@@ -3,12 +3,13 @@ from flask import render_template, jsonify, redirect, abort, request, url_for
 
 from . import app
 
-from conda import config
+from conda import config, plan
 from conda.api import get_index
 from conda.envs import Env, get_envs
 from conda.resolve import Resolve, MatchSpec
 from conda.install import linked, is_linked
 from conda.history import History, is_diff
+from conda.cli.common import specs_from_args
 
 def get_resolve():
     return Resolve(get_index(use_cache=True))
@@ -99,9 +100,33 @@ def api_pkgs():
 
     return jsonify(groups=groups)
 
-@app.route('/api/env/<env_name>/install', methods=['POST'])
-def api_env_install(env_name):
-    return jsonify(ok=True)
+@app.route('/api/env/<env_name>/plan', methods=['POST'])
+def api_env_plan(env_name):
+    data = request.get_json()
+
+    env = get_env(env_name)
+    resolve = get_resolve()
+
+    try:
+        specs = specs_from_args(data["specs"])
+        actions = plan.install_actions(env.prefix, resolve.index, specs)
+    except SystemExit as exc:
+        return jsonify(ok=False, error=exc.message)
+
+    def fix_actions(action_type):
+        selected = actions.get(action_type)
+
+        if selected is not None:
+            selected = [ [dist] + dist.rsplit('-', 2) for dist in selected ]
+            fixed = [ dict(dist=dist, name=name, version=version, build=build) for (dist, name, version, build) in selected ]
+            actions[action_type] = fixed
+
+    fix_actions('FETCH')
+    fix_actions('EXTRACT')
+    fix_actions('UNLINK')
+    fix_actions('LINK')
+
+    return jsonify(ok=True, actions=actions)
 
 @app.route('/api/env/<env_name>/activate', methods=['POST'])
 def api_env_activate(env_name):

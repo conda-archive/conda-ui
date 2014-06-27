@@ -295,6 +295,13 @@ class Packages extends Backbone.Collection
     get_by_name: (name) ->
         _.find(@models, (pkg) -> pkg.get('name') == name)
 
+    get_by_dist: (name, dist) ->
+        pkg = @get_by_name(name)
+        if pkg?
+            _.find(pkg.get('pkgs'), (pkg) -> pkg.dist == dist)
+        else
+            null
+
     get_filter: () ->
         @_filter
 
@@ -354,13 +361,14 @@ class PackagesView extends Backbone.View
     on_name_click: (event) =>
         name = $(event.target).data("package-name")
         pkg = @pkgs.get_by_name(name)
-        new PackageModalView({pkg: pkg, envs: @envs}).show()
+        new PackageModalView({pkg: pkg, envs: @envs, pkgs: @pkgs}).show()
 
 class PackageModalView extends ModalView
 
     initialize: (options) ->
         @pkg = options.pkg
         @envs = options.envs
+        @pkgs = options.pkgs
         super(options)
 
     modal_size: () -> "large"
@@ -399,6 +407,105 @@ class PackageModalView extends ModalView
     render: () ->
         super()
         @$el.addClass("packages-modal")
+
+    on_submit: (event) =>
+        env = @envs.get_active()
+        $.ajax({
+            url: "/api/env/#{env.get('name')}/plan",
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify({specs: [@pkg.get('name')]}),
+            success: @on_plan,
+        })
+
+    on_plan: (data) =>
+        new PlanModalView({pkg: @pkg, envs: @envs, pkgs: @pkgs, actions: data.actions}).show()
+
+class PlanModalView extends ModalView
+
+    initialize: (options) ->
+        @pkg = options.pkg
+        @envs = options.envs
+        @pkgs = options.pkgs
+        @actions = options.actions
+        super(options)
+
+    title_text: () -> $('<span>Installation plan for </span>').append($('<span>').text(@pkg.get('name')))
+
+    submit_text: () -> "Proceed"
+
+    render_body: () ->
+        fetch = @actions['FETCH']
+        unlink = @actions['UNLINK']
+        link = @actions['LINK']
+
+        $plan = $('<div>')
+
+        if fetch?
+            $description = $('<h5>The following packages will be downloaded:</h5>')
+
+            headers = ['Name', 'Version', 'Build', 'Size']
+            $headers = $('<tr>').html($('<th>').text(text) for text in headers)
+
+            $rows = for pkg in fetch
+                info = @pkgs.get_by_dist(pkg.name, pkg.dist)
+
+                $name = $('<td>').text(pkg.name)
+                $version = $('<td>').text(pkg.version)
+                $build = $('<td>').text(pkg.build)
+                $size = $('<td>').text(human_readable(info.size))
+
+                $columns = [$name, $version, $build, $size]
+                $('<tr>').html($columns)
+
+            $table = $('<table class="table table-bordered table-striped">')
+            $table.append($('<thead>').html($headers))
+            $table.append($('<tbody>').html($rows))
+
+            $plan.append([$description, $table])
+
+        if unlink?
+            $description = $('<h5>The following packages will be UN-linked:</h5>')
+
+            headers = ['Name', 'Version', 'Build']
+            $headers = $('<tr>').html($('<th>').text(text) for text in headers)
+
+            $rows = for pkg in unlink
+                $name = $('<td class="col-plan-name">').text(pkg.name)
+                $version = $('<td class="col-plan-version">').text(pkg.version)
+                $build = $('<td class="col-plan-build">').text(pkg.build)
+
+                $columns = [$name, $version, $build]
+                $('<tr>').html($columns)
+
+            $table = $('<table class="table table-bordered table-striped unlink">')
+            $table.append($('<thead>').html($headers))
+            $table.append($('<tbody>').html($rows))
+
+            $plan.append([$description, $table])
+
+        if link?
+            $description = $('<h5>The following packages will be linked:</h5>')
+
+            headers = ['Name', 'Version', 'Build']
+            $headers = $('<tr>').html($('<th>').text(text) for text in headers)
+
+            $rows = for pkg in link
+                $name = $('<td class="col-plan-name">').text(pkg.name)
+                $version = $('<td class="col-plan-version">').text(pkg.version)
+                $build = $('<td class="col-plan-build">').text(pkg.build)
+
+                $columns = [$name, $version, $build]
+                $('<tr>').html($columns)
+
+            $table = $('<table class="table table-bordered table-striped">')
+            $table.append($('<thead>').html($headers))
+            $table.append($('<tbody>').html($rows))
+
+            $plan.append([$description, $table])
+
+        $plan
 
 class InstalledView extends Backbone.View
 
