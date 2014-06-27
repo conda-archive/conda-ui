@@ -31,8 +31,8 @@ def api_envs():
         for dist in linked(env.prefix):
             name, version, build = dist.rsplit('-', 2)
             meta = is_linked(env.prefix, dist)
-            files = meta.get("files", [])
-            installed[name] = dict(dist=dist, version=version, build=build, files=files)
+            # files = meta.get("files", [])
+            installed[name] = dict(dist=dist, version=version, build=build) # , files=files)
 
         env = env.to_dict()
         env["installed"] = installed
