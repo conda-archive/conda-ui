@@ -1,3 +1,4 @@
+from os.path import isfile
 from flask import render_template, jsonify, redirect, abort, request, url_for
 
 from . import app
@@ -7,6 +8,7 @@ from conda.api import get_index
 from conda.envs import Env, get_envs
 from conda.resolve import Resolve, MatchSpec
 from conda.install import linked, is_linked
+from conda.history import History, is_diff
 
 def get_resolve():
     return Resolve(get_index(use_cache=True))
@@ -17,6 +19,48 @@ def get_all_envs():
 def get_env(name):
     return { env.name: env for env in get_all_envs() }[name]
 
+def get_history(env):
+    history = History(env.prefix)
+
+    if not isfile(history.path):
+        return None
+
+    revisions = []
+
+    for revision, (date, content) in enumerate(history.parse()):
+        revisions.append(dict(
+            revision = revision,
+            date = " ".join(date.split(" ", 2)[:2]),
+            diff = list(mk_diff(content)),
+        ))
+
+    return revisions
+
+def mk_diff(content):
+    if not is_diff(content):
+        for dist in content:
+            name, version, build = dist.rsplit('-', 2)
+            yield dict(op="add", name=name, version=version, build=build)
+    else:
+        added = {}
+        removed = {}
+        for s in content:
+            fn = s[1:]
+            name, version, build = fn.rsplit('-', 2)
+            if s.startswith('-'):
+                removed[name.lower()] = (version, build)
+            elif s.startswith('+'):
+                added[name.lower()] = (version, build)
+        changed = set(added) & set(removed)
+        for name in sorted(changed):
+            yield dict(op="modify", name=name,
+                old_version=removed[name][0], new_version=added[name][0],
+                old_build=removed[name][1], new_build=added[name][1])
+        for name in sorted(set(removed) - changed):
+            yield dict(op="remove", name=name, version=removed[name][0], build=removed[name][1])
+        for name in sorted(set(added) - changed):
+            yield dict(op="add", name=name, version=added[name][0], build=added[name][1])
+
 @app.route('/')
 def index_view():
     return render_template('index.html')
@@ -26,6 +70,7 @@ def api_envs():
     envs = []
 
     for env in get_all_envs():
+        history = get_history(env)
         installed = {}
 
         for dist in linked(env.prefix):
@@ -35,6 +80,7 @@ def api_envs():
             installed[name] = dict(dist=dist, version=version, build=build) # , files=files)
 
         env = env.to_dict()
+        env["history"] = history
         env["installed"] = installed
         envs.append(env)
 

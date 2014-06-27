@@ -23,7 +23,7 @@
         .modal {
             overflow: auto;
         }
-        #pkgs, #installed {
+        #main-tabs > .tab-pane {
             padding: 1em 1em 0 1em;
         }
         </style>
@@ -48,12 +48,12 @@
         <ul class="nav nav-tabs">
             <li class="active"><a href="#pkgs" data-toggle="tab">Packages</a></li>
             <li><a href="#installed" data-toggle="tab">Installed</a></li>
+            <li><a href="#history" data-toggle="tab">History</a></li>
         </ul>
-        <div class="tab-content">
-            <div class="tab-pane active" id="pkgs">
-            </div>
-            <div class="tab-pane" id="installed">
-            </div>
+        <div class="tab-content" id="main-tabs">
+            <div class="tab-pane active" id="pkgs"></div>
+            <div class="tab-pane" id="installed"></div>
+            <div class="tab-pane" id="history"></div>
         </div>
     </body>
 </html>

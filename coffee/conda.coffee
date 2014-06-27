@@ -435,6 +435,58 @@ class InstalledView extends Backbone.View
         $table.append($('<tbody>').html($rows))
         @$el.html($table)
 
+class HistoryView extends Backbone.View
+
+    initialize: (options) ->
+        super(options)
+        @envs = options.envs
+        @listenTo(@envs, 'all', () => @render())
+        @render()
+
+    render: () ->
+        env = @envs.get_active()
+        if not env? then return
+
+        history = env.get('history')
+
+        if history?
+            headers = ['Revision', 'Date', 'Name', 'Removed Version', 'Installed Version']
+            $headers = $('<tr>').html($('<th>').text(text) for text in headers)
+
+            mk_version = (version, build) -> $('<td>').text("#{version} (#{build})")
+            mk_mdash = () -> $('<td>&mdash;</td>')
+
+            $rows = for history_item in history
+                for diff_item in history_item.diff
+                    $revision = $('<td>').text(history_item.revision)
+                    $date = $('<td>').text(history_item.date)
+                    $name = $('<td>').text(diff_item.name)
+
+                    switch diff_item.op
+                        when "add"
+                            $new_version = mk_version(diff_item.version, diff_item.build)
+                            $old_version = mk_mdash()
+                            style = "success"
+                        when "remove"
+                            $new_version = mk_mdash()
+                            $old_version = mk_version(diff_item.version, diff_item.build)
+                            style = "danger"
+                        when "modify"
+                            $new_version = mk_version(diff_item.old_version, diff_item.old_build)
+                            $old_version = mk_version(diff_item.new_version, diff_item.new_build)
+                            style = "info"
+
+                    $('<tr>').html([$revision, $date, $name, $old_version, $new_version]).addClass(style)
+
+            $rows = _.flatten($rows, shallow=true)
+            $table = $('<table class="table table-bordered">')
+            $table.append($('<thead>').html($headers))
+            $table.append($('<tbody>').html($rows))
+
+            @$el.html($table)
+        else
+            @$el.html("History was not recorded for this environment.")
+
 $.validator.setDefaults({
     highlight: (element) ->
         $(element).closest('.form-group').addClass('has-error')
@@ -477,6 +529,7 @@ $(document).ready () ->
     new SearchView({el: $('#search'), pkgs: pkgs})
     new PackagesView({el: $('#pkgs'), envs: envs, pkgs: pkgs})
     new InstalledView({el: $('#installed'), envs: envs, pkgs: pkgs})
+    new HistoryView({el: $('#history'), envs: envs})
 
     $('#settings').click (event) =>
         new SettingsView().show()
