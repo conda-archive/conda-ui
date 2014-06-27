@@ -40,7 +40,7 @@ def mk_diff(content):
     if not is_diff(content):
         for dist in content:
             name, version, build = dist.rsplit('-', 2)
-            yield dict(op="add", name=name, version=version, build=build)
+            yield dict(op="install", name=name, version=version, build=build)
     else:
         added = {}
         removed = {}
@@ -53,13 +53,13 @@ def mk_diff(content):
                 added[name.lower()] = (version, build)
         changed = set(added) & set(removed)
         for name in sorted(changed):
-            yield dict(op="modify", name=name,
-                old_version=removed[name][0], new_version=added[name][0],
-                old_build=removed[name][1], new_build=added[name][1])
+            old, new = removed[name], added[name]
+            op = "upgrade" if new > old else "downgrade"
+            yield dict(op=op, name=name, old_version=old[0], new_version=new[0], old_build=old[1], new_build=new[1])
         for name in sorted(set(removed) - changed):
             yield dict(op="remove", name=name, version=removed[name][0], build=removed[name][1])
         for name in sorted(set(added) - changed):
-            yield dict(op="add", name=name, version=added[name][0], build=added[name][1])
+            yield dict(op="install", name=name, version=added[name][0], build=added[name][1])
 
 @app.route('/')
 def index_view():

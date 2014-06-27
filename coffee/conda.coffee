@@ -473,7 +473,7 @@ class HistoryView extends Backbone.View
                     $name = $('<td>').text(diff_item.name)
 
                     switch diff_item.op
-                        when "add"
+                        when "install"
                             $new_version = mk_version(diff_item.version, diff_item.build)
                             $old_version = mk_mdash()
                             style = "success"
@@ -481,10 +481,10 @@ class HistoryView extends Backbone.View
                             $new_version = mk_mdash()
                             $old_version = mk_version(diff_item.version, diff_item.build)
                             style = "danger"
-                        when "modify"
+                        when "upgrade", "downgrade"
                             $new_version = mk_version(diff_item.new_version, diff_item.new_build)
                             $old_version = mk_version(diff_item.old_version, diff_item.old_build)
-                            style = "info"
+                            style = (if diff_item.op == "upgrade" then "info" else "warning")
 
                     $('<tr>').html([$revision, $date, $name, $old_version, $new_version]).addClass(style)
 
