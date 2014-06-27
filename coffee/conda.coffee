@@ -464,12 +464,13 @@ class HistoryView extends Backbone.View
             mk_mdash = () -> $('<td>&mdash;</td>')
 
             $rows = for history_item in history
+                $revision = $('<td>').text(history_item.revision)
+                $date = $('<td>').text(history_item.date)
+
                 for diff_item in history_item.diff
                     if @pkgs.do_filter(diff_item.name)
                         continue
 
-                    $revision = $('<td>').text(history_item.revision)
-                    $date = $('<td>').text(history_item.date)
                     $name = $('<td>').text(diff_item.name)
 
                     switch diff_item.op
@@ -477,16 +478,28 @@ class HistoryView extends Backbone.View
                             $new_version = mk_version(diff_item.version, diff_item.build)
                             $old_version = mk_mdash()
                             style = "success"
+                            icon = "plus-circle"
                         when "remove"
                             $new_version = mk_mdash()
                             $old_version = mk_version(diff_item.version, diff_item.build)
                             style = "danger"
-                        when "upgrade", "downgrade"
+                            icon = "minus-circle"
+                        when "upgrade"
                             $new_version = mk_version(diff_item.new_version, diff_item.new_build)
                             $old_version = mk_version(diff_item.old_version, diff_item.old_build)
-                            style = (if diff_item.op == "upgrade" then "info" else "warning")
+                            style = "info"
+                            icon = "arrow-circle-up"
+                        when "downgrade"
+                            $new_version = mk_version(diff_item.new_version, diff_item.new_build)
+                            $old_version = mk_version(diff_item.old_version, diff_item.old_build)
+                            style = "warning"
+                            icon = "arrow-circle-down"
 
-                    $('<tr>').html([$revision, $date, $name, $old_version, $new_version]).addClass(style)
+                    $icon = $('<i class="fa">').addClass("fa-#{icon}")
+                    $name.prepend([$icon, "&nbsp;"])
+
+                    $columns = [$revision.clone(), $date.clone(), $name, $old_version, $new_version]
+                    $('<tr>').html($columns).addClass(style)
 
             $rows = _.flatten($rows, shallow=true)
             $table = $('<table class="table table-bordered">')
