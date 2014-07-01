@@ -436,7 +436,10 @@ class PackageModalView extends ModalView
         api("env/#{env.get('name')}/plan", {specs: [@pkg.get('name')]}, @on_plan)
 
     on_plan: (data) =>
-        new PlanModalView({pkg: @pkg, envs: @envs, pkgs: @pkgs, actions: data.actions}).show()
+        if data.ok
+            new PlanModalView({pkg: @pkg, envs: @envs, pkgs: @pkgs, actions: data.actions}).show()
+        else
+            new Dialog({message: data.error}).show()
 
 class PlanModalView extends ModalView
 
@@ -522,6 +525,16 @@ class PlanModalView extends ModalView
             $plan.append([$description, $table])
 
         $plan
+
+    on_submit: (event) =>
+        env = @envs.get_active()
+        api("env/#{env.get('name')}/install", {specs: [@pkg.get('name')]}, @on_install)
+
+    on_install: (data) =>
+        if data.ok
+            new Dialog({type: "info", message: "#{@pkg.get('name')} was successfully installed"})
+        else
+            new Dialog({type: "error", message: data.error}).show()
 
 class InstalledView extends Backbone.View
 

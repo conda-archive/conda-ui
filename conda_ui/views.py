@@ -125,6 +125,22 @@ def api_env_plan(env_name):
 
     return jsonify(ok=True, actions=actions)
 
+@app.route('/api/env/<env_name>/install', methods=['POST'])
+def api_env_install(env_name):
+    data = request.get_json()
+
+    env = get_env(env_name)
+    resolve = get_resolve()
+
+    try:
+        specs = specs_from_args(data["specs"])
+        actions = plan.install_actions(env.prefix, resolve.index, specs)
+        plan.execute_actions(actions, resolve.index)
+    except SystemExit as exc:
+        return jsonify(ok=False, error=exc.message)
+
+    return jsonify(ok=True)
+
 @app.route('/api/env/<env_name>/activate', methods=['POST'])
 def api_env_activate(env_name):
     return jsonify(ok=True)
