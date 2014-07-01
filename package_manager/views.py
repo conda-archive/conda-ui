@@ -1,18 +1,15 @@
+from __future__ import print_function, division, absolute_import
+
 from os.path import isfile
 from flask import render_template, jsonify, redirect, abort, request, url_for
 
 from . import app
+from .api import Env, get_envs, get_resolve
 
 from conda import config, plan
-from conda.api import get_index
-from conda.envs import Env, get_envs
-from conda.resolve import Resolve, MatchSpec
 from conda.install import linked, is_linked
 from conda.history import History, is_diff
 from conda.cli.common import specs_from_args
-
-def get_resolve():
-    return Resolve(get_index(use_cache=True))
 
 def get_all_envs():
     return [Env()] + get_envs()
@@ -95,7 +92,7 @@ def api_pkgs():
     for name in sorted(resolve.groups):
         groups.append(dict(
             name = name,
-            pkgs = [ pkg.to_dict() for pkg in resolve.get_pkgs(MatchSpec(name)) ],
+            pkgs = [ pkg.to_dict() for pkg in resolve.get_packages(name) ],
         ))
 
     return jsonify(groups=groups)
