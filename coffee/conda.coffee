@@ -182,6 +182,19 @@ class ModalView extends Backbone.View
     on_shown: (event) =>
     on_hidden: (event) => @remove()
 
+class DialogView extends ModalView
+    initialize: (options) ->
+        @type = options.type
+        @message = options.message
+        super(options)
+
+    title_text: () -> @type.charAt(0).toUpperCase() + @type.slice(1)
+
+    render_body: () -> $('<span>').text(@message)
+
+    submit_text: () -> null
+    cancel_text: () -> "Close"
+
 class SettingsView extends ModalView
 
     title_text: () -> "Settings"
@@ -439,7 +452,7 @@ class PackageModalView extends ModalView
         if data.ok
             new PlanModalView({pkg: @pkg, envs: @envs, pkgs: @pkgs, actions: data.actions}).show()
         else
-            new Dialog({message: data.error}).show()
+            new DialogView({message: data.error}).show()
 
 class PlanModalView extends ModalView
 
@@ -532,9 +545,9 @@ class PlanModalView extends ModalView
 
     on_install: (data) =>
         if data.ok
-            new Dialog({type: "info", message: "#{@pkg.get('name')} was successfully installed"})
+            new DialogView({type: "info", message: "#{@pkg.get('name')} was successfully installed"}).show()
         else
-            new Dialog({type: "error", message: data.error}).show()
+            new DialogView({type: "error", message: data.error}).show()
 
 class InstalledView extends Backbone.View
 
