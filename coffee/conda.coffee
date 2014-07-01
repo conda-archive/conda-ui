@@ -10,6 +10,17 @@ human_readable = (n) ->
     g = m/1024
     return sprintf('%.2f GB', g)
 
+api = (url, data, success, failure) ->
+    $.ajax({
+        url: "/api/" + url,
+        type: 'POST',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify(data),
+        success: success,
+        failure: failure,
+    })
+
 class Env extends Backbone.Model
     defaults: -> {}
 
@@ -94,7 +105,7 @@ class EnvsView extends Backbone.View
 
     on_activate_click: (event) =>
         env = @envs.get_active()
-        $.ajax({url: "/api/env/#{env.get('name')}/activate", type: 'POST'})
+        api("env/#{env.get('name')}/activate", {}, @on_env_activate)
 
     on_delete_click: (event) =>
         new DeleteEnvView(envs: @envs).show()
@@ -104,6 +115,9 @@ class EnvsView extends Backbone.View
 
     on_new_click: (event) =>
         new NewEnvView(envs: @envs).show()
+
+    on_env_activate: (data) =>
+        # TODO
 
 class ModalView extends Backbone.View
     initialize: (options) ->
@@ -193,8 +207,11 @@ class DeleteEnvView extends ModalView
 
     on_submit: (event) =>
         env = @envs.get_active()
-        $.ajax({url: "/api/env/#{env.get('name')}/delete", type: 'POST'})
+        api("env/#{env.get('name')}/delete", {}, @on_env_delete)
         @hide()
+
+    on_env_delete: (data) =>
+        # TODO
 
 class EnvModalView extends ModalView
 
@@ -241,7 +258,10 @@ class CloneEnvView extends EnvModalView
     submit_text: () -> "Clone"
 
     doit: (new_name) ->
-        $.ajax({url: "/api/env/#{@envs.get_active()}/clone/#{new_name}", type: 'POST'})
+        api("env/#{@envs.get_active()}/clone/#{new_name}", {}, @on_env_clone)
+
+    on_env_clone: (data) =>
+        # TODO
 
 class NewEnvView extends EnvModalView
 
@@ -250,7 +270,10 @@ class NewEnvView extends EnvModalView
     submit_text: () -> "Create"
 
     doit: (new_name) ->
-        $.ajax({url: "/api/envs/new/#{new_name}", type: 'POST'})
+        api("envs/new/#{new_name}", {}, @on_env_new)
+
+    on_env_new: (data) =>
+        # TODO
 
 class SearchView extends Backbone.View
     initialize: (options) ->
@@ -410,14 +433,7 @@ class PackageModalView extends ModalView
 
     on_submit: (event) =>
         env = @envs.get_active()
-        $.ajax({
-            url: "/api/env/#{env.get('name')}/plan",
-            type: 'POST',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: JSON.stringify({specs: [@pkg.get('name')]}),
-            success: @on_plan,
-        })
+        api("env/#{env.get('name')}/plan", {specs: [@pkg.get('name')]}, @on_plan)
 
     on_plan: (data) =>
         new PlanModalView({pkg: @pkg, envs: @envs, pkgs: @pkgs, actions: data.actions}).show()
