@@ -1,4 +1,4 @@
 *.sw[opn]
 *.py[cod]
 
-/package_manager/static/conda
+/conda_ui/static/conda

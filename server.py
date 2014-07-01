@@ -3,9 +3,9 @@
 from __future__ import print_function
 
 if __name__ == "__main__":
-    import package_manager
+    import conda_ui
 
     try:
-        package_manager.run()
+        conda_ui.run()
     except KeyboardInterrupt:
-        print("Shutting down wakari-app-package-manager ...")
+        print("Shutting down conda-ui ...")

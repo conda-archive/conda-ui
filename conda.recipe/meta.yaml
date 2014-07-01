@@ -1,11 +1,11 @@
 package:
-  name: wakari-app-package-manager
+  name: conda-ui
   version: 1.0.0
 
 build:
   number: {{ environ.get('BINSTAR_BUILD', 1) }}
   entry_points:
-    - wk-app-package-manager = package_manager.server:main
+    - conda-ui = conda_ui.server:main
 
 requirements:
   build:
@@ -16,7 +16,8 @@ requirements:
     - python
     - flask
     - werkzeug
+    - conda
 
 about:
-  home: https://github.com/ContinuumIO/wakari-app-package-manager
+  home: https://github.com/ContinuumIO/conda-ui
   license: MIT License
