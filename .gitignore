@@ -1,4 +1,4 @@
 *.sw[opn]
 *.py[cod]
 
-/conda_ui/static/conda
+/conda_ui/static/conda_ui/*.js

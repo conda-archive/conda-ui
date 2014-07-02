@@ -1,3 +1,29 @@
+require.config
+    baseUrl: '/static'
+    paths:
+        jquery: 'jquery-2.1.1/jquery.min'
+        validate: 'validate-1.12.0/jquery.validate.min'
+        sprintf: 'sprintf-1.0.0/sprintf.min'
+        underscore: 'underscore-1.6.0/underscore.min'
+        backbone: 'backbone-1.1.2/backbone.min'
+        bootstrap: 'bootstrap-3.1.1/js/bootstrap.min'
+    shim:
+        jquery:
+            exports: '$'
+        validate:
+            deps: ['jquery']
+            exports: 'validate'
+        sprintf:
+            exports: 'sprintf'
+        underscore:
+            exports: '_'
+        backbone:
+            deps: ['jquery']
+            exports: 'Backbone'
+        bootstrap:
+            deps: ['jquery']
+            exports: 'modal'
+
 define [
     "jquery"
     "conda_ui/envs"

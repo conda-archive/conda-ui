@@ -1,3 +1,3 @@
 #!/bin/bash
 
-coffee -o conda_ui/static/conda $* coffee/*.coffee
+coffee -c $* conda_ui/static/conda_ui/*.coffee
