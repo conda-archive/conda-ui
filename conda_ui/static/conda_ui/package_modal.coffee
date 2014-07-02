@@ -1,11 +1,12 @@
 define [
     "underscore"
     "jquery"
+    "conda_ui/api"
     "conda_ui/utils"
     "conda_ui/modal"
     "conda_ui/dialog"
     "conda_ui/plan_modal"
-], (_, $, utils, Modal, Dialog, PlanModal) ->
+], (_, $, api, utils, Modal, Dialog, PlanModal) ->
 
     class PackageModalView extends Modal.View
 

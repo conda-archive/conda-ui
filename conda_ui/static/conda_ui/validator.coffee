@@ -1,7 +1,7 @@
 define [
     "jquery"
-    "validator"
-], ($, $Validator) ->
+    "validate"
+], ($, $Validate) ->
 
     $.validator.setDefaults({
         highlight: (element) ->

@@ -1,8 +1,8 @@
 define [
     "jquery"
     "backbone"
-    "bootstrap/modal"
-], ($, Backbone, $Modal) ->
+    "bootstrap"
+], ($, Backbone, $Bootstrap) ->
 
     class ModalView extends Backbone.View
         initialize: (options) ->

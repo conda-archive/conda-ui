@@ -85,4 +85,4 @@ define [
             pkg = @pkgs.get_by_name(name)
             new PackageModal.View({pkg: pkg, envs: @envs, pkgs: @pkgs}).show()
 
-    return {Model: Env, Collection: Envs, View: EnvsView}
+    return {Model: Package, Collection: Packages, View: PackagesView}

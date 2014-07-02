@@ -1,7 +1,8 @@
 define [
     "jquery"
+    "conda_ui/api"
     "conda_ui/modal"
-], ($, Modal) ->
+], ($, api, Modal) ->
 
     class DeleteEnvView extends Modal.View
 

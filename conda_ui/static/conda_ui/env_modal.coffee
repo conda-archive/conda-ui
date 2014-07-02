@@ -1,8 +1,8 @@
 define [
     "jquery"
     "conda_ui/modal"
-    "conda_ui/validate"
-], ($, Modal, $Validate) ->
+    "conda_ui/validator"
+], ($, Modal, $Validator) ->
 
     class EnvModalView extends Modal.View
 
