@@ -2,6 +2,14 @@
 
 Conda UI is a web user interface for [Conda][conda].
 
+## Development
+
+```bash
+./compile
+./server --debug
+```
+Go to http://localhost:5000
+
 ## License
 
 Copyright &copy; 2014 by Continuum Analytics, Inc.
