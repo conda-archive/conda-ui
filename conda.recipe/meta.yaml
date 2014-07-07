@@ -10,13 +10,11 @@ build:
 requirements:
   build:
     - python
-    - distribute
     - setuptools
 
   run:
     - python
     - flask
-    - werkzeug
     - conda
 
 about:
