@@ -4,5 +4,6 @@
 /build/
 /dist/
 /*.egg-info/
+/record.txt
 
 /conda_ui/static/conda_ui/*.js

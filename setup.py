@@ -3,7 +3,7 @@ from __future__ import print_function
 import sys
 import subprocess
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def build():
     retcode = subprocess.call(["sh", "-ex", "compile"])
@@ -22,9 +22,7 @@ setup(
     install_requires=['Flask', 'conda'],
     include_package_data=True,
     zip_safe=False,
-    packages=[
-        'conda_ui',
-    ],
+    packages=find_packages(),
     entry_points={
         'console_scripts': [
             'conda-ui = conda_ui:main',
