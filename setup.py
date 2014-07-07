@@ -17,9 +17,9 @@ setup(
     name='conda-ui',
     version='1.0.0',
     author='Continuum Analytics',
-    author_email='wakari-dev@continuum.io',
-    description='UI for Conda package manager',
-    install_requires=['Flask', 'werkzeug', 'conda'],
+    author_email='conda@continuum.io',
+    description='Web user interface for Conda',
+    install_requires=['Flask', 'conda'],
     include_package_data=True,
     zip_safe=False,
     packages=[
