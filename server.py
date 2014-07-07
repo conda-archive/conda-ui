@@ -6,6 +6,6 @@ if __name__ == "__main__":
     import conda_ui
 
     try:
-        conda_ui.run()
+        conda_ui.main()
     except KeyboardInterrupt:
         print("Shutting down conda-ui ...")

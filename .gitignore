@@ -1,4 +1,8 @@
 *.sw[opn]
 *.py[cod]
 
+/build/
+/dist/
+/*.egg-info/
+
 /conda_ui/static/conda_ui/*.js

@@ -1,0 +1,2 @@
+include conda_ui/templates/*.html
+recursive-include conda_ui/static *

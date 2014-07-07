@@ -1,28 +1,31 @@
 import sys
 import argparse
 
-from flask import Flask, url_for
+from flask import Flask, Blueprint, url_for
+
+blueprint = Blueprint('views', __name__)
+from . import views
 
 def static(filename):
     return url_for('static', filename=filename)
 
-app = Flask(__name__)
-app.jinja_env.globals['static'] = static
-
 def start_server(args):
-    if args.debug:
-        app.debug = True
-    app.run()
+    app = Flask(__name__)
+    app.jinja_env.globals['static'] = static
 
-def run():
+    blueprint.url_prefix = args.url_prefix
+    app.register_blueprint(blueprint)
+
+    app.run(port=args.port, debug=args.debug)
+
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--debug",
-        action = "store_true",
-        default = False,
-    )
+    parser.add_argument("-d", "--debug", action="store_true", default=False)
+    parser.add_argument("-p", "--port", type=int, default=4888)
+    parser.add_argument("--url-prefix", default=None)
 
-    args = parser.parse_args(sys.argv[1:])
+    args = parser.parse_args()
     start_server(args)
 
-from . import views
+if __name__ == '__main__':
+    main()

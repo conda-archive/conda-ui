@@ -5,12 +5,13 @@ package:
 build:
   number: {{ environ.get('BINSTAR_BUILD', 1) }}
   entry_points:
-    - conda-ui = conda_ui.server:main
+    - conda-ui = conda_ui:main
 
 requirements:
   build:
     - python
     - distribute
+    - setuptools
 
   run:
     - python

@@ -8,7 +8,7 @@ Conda UI is a web user interface for [Conda][conda].
 ./compile
 ./server --debug
 ```
-Go to http://localhost:5000
+Go to http://localhost:4888
 
 ## License
 

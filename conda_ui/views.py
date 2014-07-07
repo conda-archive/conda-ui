@@ -3,7 +3,7 @@ from __future__ import print_function, division, absolute_import
 from os.path import isfile
 from flask import render_template, jsonify, redirect, abort, request, url_for
 
-from . import app
+from . import blueprint
 from .api import Env, get_envs, get_resolve
 
 from conda import config, plan
@@ -59,11 +59,11 @@ def mk_diff(content):
         for name in sorted(set(added) - changed):
             yield dict(op="install", name=name, version=added[name][0], build=added[name][1])
 
-@app.route('/')
+@blueprint.route('/')
 def index_view():
     return render_template('index.html')
 
-@app.route('/api/envs', methods=['GET'])
+@blueprint.route('/api/envs', methods=['GET'])
 def api_envs():
     envs = []
 
@@ -84,7 +84,7 @@ def api_envs():
 
     return jsonify(envs=envs)
 
-@app.route('/api/pkgs', methods=['GET'])
+@blueprint.route('/api/pkgs', methods=['GET'])
 def api_pkgs():
     resolve = get_resolve()
     groups = []
@@ -97,7 +97,7 @@ def api_pkgs():
 
     return jsonify(groups=groups)
 
-@app.route('/api/env/<env_name>/plan', methods=['POST'])
+@blueprint.route('/api/env/<env_name>/plan', methods=['POST'])
 def api_env_plan(env_name):
     data = request.get_json()
 
@@ -125,7 +125,7 @@ def api_env_plan(env_name):
 
     return jsonify(ok=True, actions=actions)
 
-@app.route('/api/env/<env_name>/install', methods=['POST'])
+@blueprint.route('/api/env/<env_name>/install', methods=['POST'])
 def api_env_install(env_name):
     data = request.get_json()
 
@@ -141,18 +141,18 @@ def api_env_install(env_name):
 
     return jsonify(ok=True)
 
-@app.route('/api/env/<env_name>/activate', methods=['POST'])
+@blueprint.route('/api/env/<env_name>/activate', methods=['POST'])
 def api_env_activate(env_name):
     return jsonify(ok=True)
 
-@app.route('/api/env/<env_name>/delete', methods=['POST'])
+@blueprint.route('/api/env/<env_name>/delete', methods=['POST'])
 def api_env_delete(env_name):
     return jsonify(ok=True)
 
-@app.route('/api/env/<env_name>/clone/<new_name>', methods=['POST'])
+@blueprint.route('/api/env/<env_name>/clone/<new_name>', methods=['POST'])
 def api_env_clone(env_name, new_name):
     return jsonify(ok=True)
 
-@app.route('/api/envs/new/<new_name>', methods=['POST'])
+@blueprint.route('/api/envs/new/<new_name>', methods=['POST'])
 def api_envs_new(new_name):
     return jsonify(ok=True)
