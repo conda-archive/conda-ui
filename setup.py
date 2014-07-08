@@ -15,7 +15,7 @@ build()
 
 setup(
     name='conda-ui',
-    version='1.0.0',
+    version='0.1.0',
     author='Continuum Analytics',
     author_email='conda@continuum.io',
     description='Web user interface for Conda',
