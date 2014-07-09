@@ -20,12 +20,9 @@ define [
                 conda.Env.getEnvs().then (envs) ->
                     promises = []
                     envs.forEach (env) ->
-                        promise = env.linked()
-                        promises.push promise
-                        promise.then (linked) ->
-                            env.installed = {}
-                            for pkg in linked
-                                env.installed[pkg.info.name] = pkg
+                        promises.push env.linked()
+                        promises.push env.revisions()
+
                     Promise.all(promises).then ->
                         options.success envs
             else
