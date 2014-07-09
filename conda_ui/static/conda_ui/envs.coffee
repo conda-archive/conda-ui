@@ -2,19 +2,38 @@ define [
     "underscore"
     "jquery"
     "backbone"
+    "condajs"
     "conda_ui/api"
     "conda_ui/delete_env"
     "conda_ui/clone_env"
     "conda_ui/new_env"
-], (_, $, Backbone, api, DeleteEnv, CloneEnv, NewEnv) ->
-
+], (_, $, Backbone, conda, api, DeleteEnv, CloneEnv, NewEnv) ->
     class Env extends Backbone.Model
         defaults: -> {}
 
     class Envs extends Backbone.Collection
         model: Env
         url: () -> "/api/envs"
-        parse: (response) -> response.envs
+
+        sync: (method, model, options) ->
+            if method is "read"
+                conda.Env.getEnvs().then (envs) ->
+                    promises = []
+                    envs.forEach (env) ->
+                        promise = env.linked()
+                        promises.push promise
+                        promise.then (linked) ->
+                            env.installed = {}
+                            for pkg in linked
+                                env.installed[pkg.info.name] = pkg
+                    Promise.all(promises).then ->
+                        options.success envs
+            else
+                console.log method
+
+        # parse: (response) ->
+        #     console.log response
+        #     response.envs
 
         get_by_name: (name) ->
             _.find(@models, (env) -> env.get('name') == name)

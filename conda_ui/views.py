@@ -1,5 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
+import re
+import subprocess
 from os.path import isfile
 from flask import render_template, jsonify, redirect, abort, request, url_for
 
@@ -156,3 +158,34 @@ def api_env_clone(env_name, new_name):
 @blueprint.route('/api/envs/new/<new_name>', methods=['POST'])
 def api_envs_new(new_name):
     return jsonify(ok=True)
+
+_convert_re = re.compile('([A-Z])')
+def convert(key):
+    return "--" + _convert_re.sub(lambda match: '-' + match.group(0).lower(), key)
+
+@blueprint.route('/condajs/<subcommand>', methods=['GET', 'POST'])
+def api_condajs(subcommand):
+    flags = request.args.copy()
+    positional = []
+    if 'positional' in flags:
+        positional = flags['positional']
+        del flags['positional']
+
+    cmdList = ['conda', subcommand, '--json']
+
+    for key, value in flags.items():
+        if value is not False and value is not None:
+            cmdList.append(convert(key))
+            if isinstance(value, (list, tuple)):
+                cmdList.extend(value)
+            elif value is not True:
+                cmdList.append(value)
+
+    if isinstance(positional, str):
+        cmdList.append(positional)
+    else:
+        cmdList.extend(positional)
+
+    process = subprocess.Popen(cmdList, stdout=subprocess.PIPE)
+    result, err = process.communicate()
+    return result
