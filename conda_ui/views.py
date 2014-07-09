@@ -1,14 +1,16 @@
 from __future__ import print_function, division, absolute_import
 
 import re
+import sys
 import json
-import subprocess
+from io import StringIO
 from os.path import isfile
 from flask import render_template, jsonify, redirect, abort, request, url_for
 
 from . import blueprint
 from .api import Env, get_envs, get_resolve
 
+import conda.cli as cli
 from conda import config, plan
 from conda.install import linked, is_linked
 from conda.history import History, is_diff
@@ -179,6 +181,15 @@ def api_condajs(subcommand):
     cmdList = ['conda', subcommand, '--json']
 
     for key, value in flags.items():
+        try:
+            value = {
+                'true': True,
+                'false': False,
+                'null': None
+            }[value]
+        except KeyError:
+            pass
+
         if value is not False and value is not None:
             cmdList.append(convert(key))
             if isinstance(value, (list, tuple)):
@@ -191,6 +202,14 @@ def api_condajs(subcommand):
     else:
         cmdList.extend(positional)
 
-    process = subprocess.Popen(cmdList, stdout=subprocess.PIPE)
-    result, err = process.communicate()
-    return result
+    stdout = StringIO()
+    old = sys.stdout
+    sys.stdout = stdout
+    sys.argv = cmdList
+    try:
+        cli.main()
+    except SystemExit:
+        pass
+    sys.stdout = old
+    stdout.seek(0)
+    return stdout.read()
