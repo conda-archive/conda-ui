@@ -11,9 +11,15 @@ define [
         submit_text: () -> "Clone"
 
         doit: (new_name) ->
-            api("env/#{@envs.get_active()}/clone/#{new_name}", {}, @on_env_clone)
+            @envs.get_active().attributes.clone({ name: new_name })
+                .then @on_env_clone(new_name)
 
-        on_env_clone: (data) =>
-            # TODO
+        on_env_clone: (new_name) =>
+            (data) =>
+                env = data.env
+                Promise.all([env.linked(), env.revisions()]).then =>
+                    @envs.add env
+                    @envs.set_active new_name
+                    @envs.reset(@envs.models)
 
     return {View: CloneEnvView}
