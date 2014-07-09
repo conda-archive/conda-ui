@@ -11,8 +11,21 @@ define [
 
     class Packages extends Backbone.Collection
         model: Package
-        url: () -> "/api/pkgs"
-        parse: (response) -> response.groups
+
+        sync: (method, model, options) ->
+            if method is "read"
+                conda.search().then (data) ->
+                    restructured = for own key, pkgs of data
+                        pkgs = for pkg in pkgs
+                            pkg.dist = pkg.fn.slice(0, -8)
+                            pkg
+                        {
+                            name: key
+                            pkgs: pkgs
+                        }
+                    options.success restructured
+            else
+                console.log method
 
         get_by_name: (name) ->
             _.find(@models, (pkg) -> pkg.get('name') == name)
