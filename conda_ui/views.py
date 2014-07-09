@@ -1,6 +1,7 @@
 from __future__ import print_function, division, absolute_import
 
 import re
+import json
 import subprocess
 from os.path import isfile
 from flask import render_template, jsonify, redirect, abort, request, url_for
@@ -165,7 +166,11 @@ def convert(key):
 
 @blueprint.route('/condajs/<subcommand>', methods=['GET', 'POST'])
 def api_condajs(subcommand):
-    flags = request.args.copy()
+    if request.method == 'GET':
+        flags = request.args.copy()
+    else:
+        flags = json.loads(request.data.decode('utf-8'))
+
     positional = []
     if 'positional' in flags:
         positional = flags['positional']

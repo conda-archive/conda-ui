@@ -23,10 +23,14 @@ define [
 
         on_submit: (event) =>
             env = @envs.get_active()
-            api("env/#{env.get('name')}/delete", {}, @on_env_delete)
+            # Env.attributes is the conda-js Env object
+            env.attributes.removeEnv().then @on_env_delete
             @hide()
 
         on_env_delete: (data) =>
+            @envs.remove @envs.get_active()
+            @envs.reset @envs.models
+            @envs.set_active 'root'
             # TODO
 
     return {View: DeleteEnvView}

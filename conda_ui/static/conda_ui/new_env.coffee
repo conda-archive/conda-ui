@@ -11,9 +11,17 @@ define [
         submit_text: () -> "Create"
 
         doit: (new_name) ->
-            api("envs/new/#{new_name}", {}, @on_env_new)
+            api.conda.Env.create({
+                name: new_name
+                packages: ['python']
+            }).then @on_env_new(new_name)
 
-        on_env_new: (data) =>
-            # TODO
+        on_env_new: (new_name) =>
+            (data) =>
+                console.log data
+                env = data.env
+                Promise.all([env.linked(), env.revisions()]).then =>
+                    @envs.add env
+                    @envs.reset(@envs.models)
 
     return {View: NewEnvView}
