@@ -35,7 +35,7 @@ define [
 
                     for op in ["install", "remove", "upgrade", "downgrade"]
                         for diff_item in history_item[op]
-                            if @pkgs.do_filter(diff_item.name)
+                            if @pkgs.do_filter(if typeof diff_item is "object" then diff_item.new else diff_item)
                                 continue
 
                             switch op
