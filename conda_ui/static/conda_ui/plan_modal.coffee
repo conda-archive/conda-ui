@@ -34,6 +34,9 @@ define [
                 $headers = $('<tr>').html($('<th>').text(text) for text in headers)
 
                 $rows = for pkg in fetch
+                    dist = pkg
+                    pkg = api.conda.Package.splitFn pkg
+                    pkg.dist = dist
                     info = @pkgs.get_by_dist(pkg.name, pkg.dist)
 
                     $name = $('<td>').text(pkg.name)
@@ -57,6 +60,9 @@ define [
                 $headers = $('<tr>').html($('<th>').text(text) for text in headers)
 
                 $rows = for pkg in unlink
+                    dist = pkg
+                    pkg = api.conda.Package.splitFn pkg
+                    pkg.dist = dist
                     $name = $('<td class="col-plan-name">').text(pkg.name)
                     $version = $('<td class="col-plan-version">').text(pkg.version)
                     $build = $('<td class="col-plan-build">').text(pkg.build)
@@ -77,6 +83,9 @@ define [
                 $headers = $('<tr>').html($('<th>').text(text) for text in headers)
 
                 $rows = for pkg in link
+                    dist = pkg
+                    pkg = api.conda.Package.splitFn pkg
+                    pkg.dist = dist
                     $name = $('<td class="col-plan-name">').text(pkg.name)
                     $version = $('<td class="col-plan-version">').text(pkg.version)
                     $build = $('<td class="col-plan-build">').text(pkg.build)

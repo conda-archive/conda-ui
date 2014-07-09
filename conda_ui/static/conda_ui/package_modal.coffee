@@ -55,12 +55,18 @@ define [
 
         on_submit: (event) =>
             env = @envs.get_active()
-            api("env/#{env.get('name')}/plan", {specs: [@pkg.get('name')]}, @on_plan)
+            env.attributes.install({
+                dryRun: true,
+                packages: [@pkg.get('name')]
+            }).then @on_plan
 
         on_plan: (data) =>
-            if data.ok
-                new PlanModal.View({pkg: @pkg, envs: @envs, pkgs: @pkgs, actions: data.actions}).show()
+            if data.success? and data.success
+                if data.message?
+                    new Dialog.View({ message: data.message, type: "Message" }).show()
+                else
+                    new PlanModal.View({pkg: @pkg, envs: @envs, pkgs: @pkgs, actions: data.actions}).show()
             else
-                new Dialog.View({message: data.error}).show()
+                new Dialog.View({ message: data.error, type: "Error" }).show()
 
     return {View: PackageModalView}
