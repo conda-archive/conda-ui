@@ -103,10 +103,12 @@ define [
 
         on_submit: (event) =>
             env = @envs.get_active()
-            api("env/#{env.get('name')}/install", {specs: [@pkg.get('name')]}, @on_install)
+            env.attributes.install({
+                packages: [@pkg.get('name')]
+            }).then @on_install
 
         on_install: (data) =>
-            if data.ok
+            if data.success? and data.success
                 new Dialog.View({type: "info", message: "#{@pkg.get('name')} was successfully installed"}).show()
             else
                 new Dialog.View({type: "error", message: data.error}).show()
