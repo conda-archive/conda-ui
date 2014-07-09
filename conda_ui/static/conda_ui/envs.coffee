@@ -2,12 +2,13 @@ define [
     "underscore"
     "jquery"
     "backbone"
-    "condajs"
     "conda_ui/api"
     "conda_ui/delete_env"
     "conda_ui/clone_env"
     "conda_ui/new_env"
-], (_, $, Backbone, conda, api, DeleteEnv, CloneEnv, NewEnv) ->
+], (_, $, Backbone, api, DeleteEnv, CloneEnv, NewEnv) ->
+    conda = api.conda
+
     class Env extends Backbone.Model
         defaults: -> {}
 

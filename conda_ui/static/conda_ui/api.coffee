@@ -14,3 +14,6 @@ define [
             success: success,
             failure: failure,
         })
+
+    api.conda = conda # Compatibility with non-ported code
+    return api
