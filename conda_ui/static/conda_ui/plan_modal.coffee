@@ -99,18 +99,38 @@ define [
 
                 $plan.append([$description, $table])
 
+            @$progress = $('<div class="progress-bar progress-bar-striped active" role="progressbar">')
+            @$progress.css 'width', '0%'
+            @$progress.hide()
+            $plan.append $('<div class="progress">').append @$progress
+
             $plan
 
         on_submit: (event) =>
             env = @envs.get_active()
-            env.attributes.install({
+            promise = env.attributes.install({
                 packages: [@pkg.get('name')]
-            }).then @on_install
+                progress: true
+            })
+            promise.progress (info) =>
+                @$progress.show()
+                progress = 100 * (info.progress / info.maxval)
+                percent = progress.toString() + '%'
+                @$progress.css 'width', percent
+                if info.fetch?
+                    label = 'Fetching... '
+                else
+                    label = 'Linking... '
+                @$progress.html label
+            promise.then(@on_install)
 
         on_install: (data) =>
+            @$progress.removeClass 'progress-bar-info'
             if data.success? and data.success
+                @$progress.addClass 'progress-bar-success'
                 new Dialog.View({type: "info", message: "#{@pkg.get('name')} was successfully installed"}).show()
             else
+                @$progress.addClass 'progress-bar-error'
                 new Dialog.View({type: "error", message: data.error}).show()
 
     return {View: PlanModalView}

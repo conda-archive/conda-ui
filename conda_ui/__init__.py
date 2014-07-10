@@ -3,6 +3,11 @@ import argparse
 
 from flask import Flask, Blueprint, url_for
 
+import tornado.ioloop
+import tornado.web
+import tornado.wsgi
+import sockjs.tornado
+
 blueprint = Blueprint('views', __name__)
 from . import views
 
@@ -11,12 +16,23 @@ def static(filename):
 
 def start_server(args):
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'secret'
     app.jinja_env.globals['static'] = static
 
     blueprint.url_prefix = args.url_prefix
     app.register_blueprint(blueprint)
 
-    app.run(port=args.port, debug=args.debug)
+    # app.run(port=args.port, debug=args.debug)
+
+    wsgi_app = tornado.wsgi.WSGIContainer(app)
+    condajs_ws = sockjs.tornado.SockJSRouter(views.CondaJsWebSocketRouter, '/condajs_ws')
+    routes = condajs_ws.urls
+    routes.append((r".*", tornado.web.FallbackHandler, dict(fallback=wsgi_app)))
+    application = tornado.web.Application(routes, debug=args.debug)
+
+    application.listen(args.port)
+    tornado.ioloop.IOLoop.instance().start()
+
 
 def main():
     parser = argparse.ArgumentParser(description="Web user interface for Conda")
