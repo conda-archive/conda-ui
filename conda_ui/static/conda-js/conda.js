@@ -10,16 +10,228 @@ var __makeProgressPromise = function(promise) {
         callbacks.forEach(function(f) { f(data); });
     };
 
+    var fixThen = function(promise) {
+        promise.then = function(f, g) {
+            var result = Promise.prototype.then.bind(promise)(f, g);
+            result.progress = promise.progress.bind(result);
+            fixThen(result);
+            return result;
+        };
+    };
+
+    fixThen(promise);
+
     return promise;
+};
+
+
+// Browser API
+function apiContext() {
+    var __parse = function(flags, positional) {
+        if (typeof flags === "undefined") {
+            flags = {};
+        }
+        if (typeof positional === "undefined") {
+            positional = [];
+        }
+
+        var data = flags;
+        data.positional = positional;
+
+        return data;
+    }
+
+    var rpcApi = function(command, data) {
+        // URL structure: /api/command
+        // Flags are GET query string or POST body
+        // Positional is in query string or POST body
+
+        // Translation of JS flag camelCase to command line flag
+        // dashed-version occurs server-side
+
+        var method = 'post';
+        if (['info', 'list', 'search'].indexOf(command) !== -1 ||
+            command === 'config' && flags.get) {
+            method = 'get';
+        }
+
+        var contentType = '';
+        if (method === 'post') {
+            contentType = 'application/json';
+            data = JSON.stringify(data);
+        }
+
+        return Promise.resolve($.ajax({
+            contentType: contentType,
+            data: data,
+            dataType: 'json',
+            type: method,
+            url: context.conda.API_ROOT + "/" + command
+        }));
+    };
+
+    var restApi = function(command, data) {
+        // URL structure is same as RPC API, except commands involving an
+        // environment are structured more RESTfully - additionally, we use
+        // GET/POST/PUT/DELETE based on the subcommand.
+        // Commands involving --name and --prefix are translated to
+        // /api/env/name/<name>/subcommand<? other args>
+        var url = '';
+
+        if (typeof data.name !== "undefined") {
+            url += '/env/name/' + encodeURIComponent(data.name);
+        }
+        else if (typeof data.prefix !== "undefined") {
+            // Double-encode so URL routers aren't confused by slashes if
+            // they decode before routing
+            url += '/env/prefix/' + encodeURIComponent(encodeURIComponent(data.prefix));
+        }
+
+        delete data['name'];
+        delete data['prefix'];
+
+        if (['install', 'update', 'remove'].indexOf(command) > -1) {
+            if (data.positional.length > 1) {
+                throw new context.conda.CondaError('conda: REST API supports only manipulating one package at a time');
+            }
+            if (data.positional.length === 1) {
+                url += '/' + data.positional[0];
+            }
+            data.positional = [];
+        }
+        else if (command === 'run' && url.slice(0, 4) === '/env') {
+            url += '/' + data.positional[0] + '/run';
+            data.positional = [];
+        }
+        else if (command === 'create' || command === 'list') {
+            // Ignore these - don't append the command to the URL
+        }
+        else {
+            url += '/' + command;
+        }
+
+        var method = {
+            'install': 'post',
+            'create': 'post',
+            'update': 'put',
+            'remove': 'delete'
+        }[command];
+        if (typeof method === "undefined") {
+            method = 'get';
+        }
+
+        if (command === 'config') {
+            if (typeof data.add !== "undefined") {
+                method = 'put';
+                url += '/' + data.add[0] + '/' + data.add[1];
+            }
+            else if (typeof data.set !== "undefined") {
+                method = 'put';
+                data.value = data.set[1];
+                url += '/' + data.set[0];
+            }
+            else if (typeof data.remove !== "undefined") {
+                method = 'delete';
+                url += '/' + data.remove[0] + '/' + data.remove[1];
+            }
+            else if (typeof data.removeKey !== "undefined") {
+                method = 'delete';
+                url += '/' + data.removeKey;
+            }
+            else if (typeof data.get !== "undefined" && data.get !== true) {
+                url += '/' + data.get;
+            }
+            delete data['get'];
+            delete data['add'];
+            delete data['set'];
+            delete data['remove'];
+            delete data['removeKey'];
+        }
+
+        if (typeof data.positional !== "undefined" && data.positional.length > 0) {
+            data.q = data.positional;
+        }
+        delete data.positional;
+
+        if (method !== 'get') {
+            data = JSON.stringify(data);
+        }
+        return Promise.resolve($.ajax({
+            contentType: 'application/json',
+            data: data,
+            dataType: 'json',
+            type: method,
+            url: context.conda.API_ROOT + url
+        }));
+    };
+
+    var api = function(command, flags, positional) {
+        var data = __parse(flags, positional);
+
+        if (flags && typeof flags.quiet !== "undefined" && flags.quiet === false) {
+            // Handle progress bars
+            return progressApi(command, flags, positional);
+        }
+
+        if (context.conda.API_METHOD === "RPC") {
+            return rpcApi(command, data);
+        }
+        else if (context.conda.API_METHOD === "REST") {
+            return restApi(command, data);
+        }
+        else {
+            throw new context.conda.CondaError("conda: Unrecognized API_METHOD " + context.conda.API_METHOD);
+        }
+    };
+    var context = api;
+
+    // Returns Promise like api(), but this object has additional callbacks
+    // for progress bars. Retrieves data via websocket.
+    var progressApi = function(command, flags, positional) {
+        var promise = new Promise(function(fulfill, reject) {
+            var data = __parse(flags, positional);
+            positional = data.positional;
+            delete data.positional;
+
+            var socket = new SockJS(context.conda.API_ROOT + '_ws/');
+            socket.onopen = function() {
+                socket.send(JSON.stringify({
+                    subcommand: command,
+                    flags: data,
+                    positional: positional
+                }));
+            };
+            socket.onmessage = function(e) {
+                var data = JSON.parse(e.data);
+                if (typeof data.progress !== "undefined") {
+                    promise.onProgress(data.progress);
+                }
+                else if (typeof data.finished !== "undefined") {
+                    fulfill(data.finished);
+                }
+            };
+        });
+
+        return __makeProgressPromise(promise);
+    };
+
+    return api;
+}
+
+var newContext = function() {
+    var api = apiContext();
+    var conda = factory(api);
+    api.conda = conda;
+    return conda;
 };
 
 // Set up module to run in browser and in Node.js
 // Based loosely on https://github.com/umdjs/umd/blob/master/nodeAdapter.js
-if ((typeof module === 'object' && typeof define !== 'function') || (window && window.atomRequire)) {
-    // We are in Node.js or atom
+if ((typeof module === 'object' && typeof define !== 'function') || (window && window.nodeRequire)) {
+    // We are in Node.js or Node-webkit/Atom Shell
 
-    if (typeof window !== "undefined" && window.atomRequire) {
-        var require = window.atomRequire;
+    if (typeof window !== "undefined" && window.nodeRequire) {
+        var require = window.nodeRequire;
     }
 
     var ChildProcess = require('child_process');
@@ -27,7 +239,7 @@ if ((typeof module === 'object' && typeof define !== 'function') || (window && w
 
     // converts a name like useIndexCache to --use-index-cache
     var __convert = function(f) {
-        return "--" + f.replace(/([A-Z])/, function(a, b) { return "-" + b.toLocaleLowerCase(); });
+        return "--" + f.replace(/([A-Z])/g, function(a, b) { return "-" + b.toLocaleLowerCase(); });
     };
 
     var __parse = function(command, flags, positional) {
@@ -139,13 +351,21 @@ if ((typeof module === 'object' && typeof define !== 'function') || (window && w
                     var first = rest.slice(0, dataEnd);
                     rest = rest.slice(dataEnd + 1);
                     buffer.push(first);
-                    var json = JSON.parse(buffer.join(''));
-                    buffer = [];
-                    promise.onProgress(json);
+                    try {
+                        var json = JSON.parse(buffer.join(''));
+                        buffer = [];
+                        promise.onProgress(json);
+                    }
+                    catch(ex) {
+                        console.log(ex)
+                    }
 
-                    if (json.finished === true) {
+                    if (json.finished === true && rest.indexOf('\0') === -1) {
                         progressing = false;
                     }
+                }
+                if (rest) {
+                    buffer.push(rest);
                 }
             });
 
@@ -167,98 +387,34 @@ if ((typeof module === 'object' && typeof define !== 'function') || (window && w
     module.exports = factory(api);
     module.exports.api = api;
     module.exports.progressApi = progressApi;
+
+    if (typeof window !== "undefined" && typeof window.nodeRequire !== "undefined") {
+        // For node-webkit/Atom Shell we provide the browser API as these
+        // environments are a mix of Node and browser
+        module.exports.newContext = newContext;
+    }
 }
 else {
     // We are in the browser
-    var __parse = function(flags, positional) {
-        if (typeof flags === "undefined") {
-            flags = {};
-        }
-        if (typeof positional === "undefined") {
-            positional = [];
-        }
-
-        var data = flags;
-        data.positional = positional;
-
-        return data;
-    }
-
-    var api = function(command, flags, positional) {
-        // URL structure: /api/command
-        // Flags are GET query string or POST body
-        // Positional is in query string or POST body
-
-        // Translation of JS flag camelCase to command line flag
-        // dashed-version occurs server-side
-
-        var data = __parse(flags, positional);
-
-        if (flags && typeof flags.quiet !== "undefined" && flags.quiet === false) {
-            // Handle progress bars
-            return progressApi(command, flags, positional);
-        }
-
-        var method = 'post';
-        if (['info', 'list', 'search'].indexOf(command) !== -1 ||
-            command === 'config' && flags.get) {
-            method = 'get';
-        }
-
-        var contentType = '';
-        if (method === 'post') {
-            contentType = 'application/json';
-            data = JSON.stringify(data);
-        }
-
-        return Promise.resolve($.ajax({
-            contentType: contentType,
-            data: data,
-            dataType: 'json',
-            type: method,
-            url: window.conda.API_ROOT + command
-        }));
-    };
-
-    // Returns Promise like api(), but this object has additional callbacks
-    // for progress bars. Retrieves data via websocket.
-    var progressApi = function(command, flags, positional) {
-        var promise = new Promise(function(fulfill, reject) {
-            var data = __parse(flags, positional);
-            positional = data.positional;
-            delete data.positional;
-
-            var socket = new SockJS('http://' + window.location.host +'/condajs_ws');
-            socket.onopen = function() {
-                console.log('opened socket');
-                socket.send(JSON.stringify({
-                    subcommand: command,
-                    flags: data,
-                    positional: positional
-                }));
-            };
-            socket.onmessage = function(e) {
-                var data = JSON.parse(e.data);
-                if (typeof data.progress !== "undefined") {
-                    promise.onProgress(data.progress);
-                }
-                else if (typeof data.finished !== "undefined") {
-                    fulfill(data.finished);
-                }
-            };
-            socket.onclose = function() {
-                console.log('closed socket')
-            };
-        });
-
-        return __makeProgressPromise(promise);
-    };
-
-    window.conda = factory(api);
+    window.conda = newContext();
+    window.conda.newContext = newContext;
 }
 
 function factory(api) {
     "use strict";
+
+    // TODO make this context-dependent
+    var PATH_SEP = '/';
+    if (typeof process !== "undefined") {
+        if (process.platform === 'win32') {
+            PATH_SEP = '\\';
+        }
+    }
+    else if (typeof navigator !== "undefined") {
+        if (/windows/.test(navigator.userAgent.toLowerCase())) {
+            PATH_SEP = '\\';
+        }
+    }
 
     var defaultOptions = function(options, defaults) {
         if (typeof options === "undefined" || options === null) {
@@ -295,6 +451,8 @@ function factory(api) {
             this.message = message;
         }
 
+        CondaError.prototype.__proto__ = new Error;
+
         CondaError.prototype.toString = function() {
             return "CondaError: " + this.message;
         };
@@ -327,9 +485,11 @@ function factory(api) {
                     promises.push(Package.load(fns[i]));
                 }
                 return Promise.all(promises).then(function(pkgs) {
+                    this.installed = {};
                     pkgs.forEach(function(pkg) {
                         this.installed[pkg.name] = pkg;
                     }.bind(this));
+                    return pkgs;
                 }.bind(this));
             }.bind(this));
         };
@@ -429,22 +589,46 @@ function factory(api) {
             });
         };
 
+        Env.prototype.run = function(options) {
+            var options = defaultOptions(options, {
+                name: null,
+                pkg: null
+            });
+
+            if (!(options.name || options.pkg)) {
+                throw new CondaError("Env.run: either name or pkg needed");
+            }
+            if (options.name && options.pkg) {
+                throw new CondaError("Env.run: exactly one of name or pkg allowed");
+            }
+
+            var pkg = options.name;
+            if (options.pkg) {
+                pkg = options.pkg;
+            }
+
+            return api('run', { prefix: this.prefix }, [pkg]);
+        };
+
         Env.prototype.removeEnv = function(options) {
             options = defaultOptions(options, {
-                progress: false
+                progress: false,
+                forcePscheck: false
             });
 
             return api('remove', {
                 all: true,
                 prefix: this.prefix,
-                quiet: !options.progress
+                quiet: !options.progress,
+                forcePscheck: options.forcePscheck
             });
         };
 
         Env.create = function(options) {
             var options = nameOrPrefixOptions("Env.create", options, {
                 progress: false,
-                packages: []
+                packages: [],
+                forcePscheck: false
             });
 
             if (options.packages.length === 0) {
@@ -456,15 +640,14 @@ function factory(api) {
             options.quiet = !options.progress;
             delete options.progress;
 
-            return api('create', options, packages).then(function(data) {
+            var progress = api('create', options, packages);
+            var promise = progress.then(function(data) {
                 if (typeof data.success !== "undefined" && data.success) {
                     data.env = new Env(options.name, data.actions.PREFIX);
-                    return data;
                 }
-                else {
-                    this.reject(data);
-                }
+                return data;
             });
+            return promise;
         };
 
         Env.getEnvs = function() {
@@ -474,7 +657,7 @@ function factory(api) {
                 var prefixes = info.envs;
                 for (var i = 0; i < prefixes.length; i++) {
                     var prefix = prefixes[i];
-                    var name = prefix.split('/'); // TODO Windows?
+                    var name = prefix.split(PATH_SEP);
                     name = name[name.length - 1];
                     envs.push(new Env(name, prefix));
                 }
@@ -496,13 +679,62 @@ function factory(api) {
                 return root;
             });
         };
+
+        /**
+           Sync method for Backbone collections.
+         */
+        Env.backboneSync = function(method, model, options) {
+            switch (method) {
+            case "read":
+                Env.getEnvs().then(function(envs) {
+                    var promises = [];
+                    envs.forEach(function(env) {
+                        if (typeof options.loadLinked === "undefined" ||
+                            options.loadLinked) {
+                            promises.push(env.linked());
+                        }
+                        if (typeof options.loadRevisions === "undefined" ||
+                            options.loadRevisions) {
+                            promises.push(env.revisions());
+                        }
+                        env.id = env.prefix ? env.prefix : env.name;
+                    });
+
+                    Promise.all(promises).then(function() {
+                        options.success(envs);
+                    });
+                });
+                break;
+
+            case "delete":
+                var forcePscheck = false;
+                if (typeof options.forcePscheck !== "undefined") {
+                    forcePscheck = options.forcePscheck;
+                }
+                return model.attributes.removeEnv({ forcePscheck: forcePscheck }).then(function(result) {
+                    options.success(result);
+                });
+                break;
+
+            default:
+                console.log("Env.backboneSync: cannot handle method " + method);
+            }
+        };
+
+        /**
+           Construct an instance of this class from JSON.
+
+           Intended to be used as the model attribute for a Backbone
+           Collection when the server is exposing a RESTful API.
+         */
+        Env.backboneModel = function(data) {
+        };
+
         return Env;
     })();
 
     var Package = (function() {
         var _cache = {};
-        var _search_cache = {};
-        var _search_cache_promise = null;
 
         function Package(fn, info) {
             _cache[fn] = this;
@@ -536,19 +768,11 @@ function factory(api) {
             // 3. Cache that index.
             // 4. Fall back on `conda info` only if package is not in index
             // (when the package was built/installed locally, for instance)
-            if (_search_cache_promise === null) {
-                _search_cache_promise = search({ useIndexCache: true }).then(function(result) {
-                    _search_cache = result;
-                });
-            }
-            if (typeof reload === "undefined") {
-                reload = false;
-            }
 
             if (!_cache.hasOwnProperty(fn) || reload) {
-                return _search_cache_promise.then(function(search) {
+                return index().then(function(search_cache) {
                     var spec = Package.splitFn(fn);
-                    var packages = _search_cache[spec.name];
+                    var packages = search_cache[spec.name];
                     if (typeof packages === "undefined") {
                         return api('info', {}, fn + '.tar.bz2').then(function(info) {
                             info = info[fn + '.tar.bz2'];
@@ -697,7 +921,8 @@ function factory(api) {
     var search = function(options) {
         options = defaultOptions(options, {
             regex: null,
-            spec: null
+            spec: null,
+            useIndexCache: false
         });
 
         if (options.regex && options.spec) {
@@ -707,10 +932,10 @@ function factory(api) {
         var positional = [];
 
         if (options.regex !== null) {
-            positional.push(regex);
+            positional.push(options.regex);
         }
         if (options.spec !== null) {
-            positional.push(spec);
+            positional.push(options.spec);
             options.spec = true;
         }
         else {
@@ -721,8 +946,26 @@ function factory(api) {
         return api('search', options, positional);
     };
 
-    var launch = function(command) {
-        return api('launch', {}, [command]);
+    /**
+       The package index - conda search --json.
+
+       This method caches the index as it is an expensive call (1-4 seconds).
+     */
+    var _search_cache = null;
+    var index = function(options) {
+        options = defaultOptions(options, {
+            reload: false
+        });
+
+        if (_search_cache === null || options.reload) {
+            _search_cache = search({ useIndexCache: !options.reload });
+        }
+
+        return _search_cache;
+    };
+
+    var run = function(command) {
+        return api('run', {}, [command]);
     };
 
     var clean = function(options) {
@@ -745,13 +988,15 @@ function factory(api) {
 
     return {
         clean: clean,
+        index: index,
         info: info,
-        launch: launch,
+        run: run,
         search: search,
         CondaError: CondaError,
         Config: Config,
         Env: Env,
         Package: Package,
-        API_ROOT: '/api/'
+        API_ROOT: '/api',
+        API_METHOD: 'RPC'
     };
 }

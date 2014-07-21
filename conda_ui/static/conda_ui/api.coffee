@@ -2,7 +2,7 @@ define [
     "jquery",
     "condajs"
 ], ($, conda) ->
-    conda.API_ROOT = '/condajs/'
+    conda.API_ROOT = '/condajs'
 
     api = (url, data, success, failure) ->
         $.ajax({

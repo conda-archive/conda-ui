@@ -62,6 +62,7 @@ define [
 
         on_plan: (data) =>
             if data.success? and data.success
+                @hide()
                 if data.message?
                     new Dialog.View({ message: data.message, type: "Message" }).show()
                 else

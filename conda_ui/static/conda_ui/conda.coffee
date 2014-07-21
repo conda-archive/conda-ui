@@ -7,7 +7,7 @@ require.config
         underscore: 'underscore-1.6.0/underscore.min'
         backbone: 'backbone-1.1.2/backbone.min'
         bootstrap: 'bootstrap-3.1.1/js/bootstrap.min'
-        condajs: 'conda-js/conda.min'
+        condajs: 'conda-js/conda'
     shim:
         jquery:
             exports: '$'

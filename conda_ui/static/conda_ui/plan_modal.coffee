@@ -117,14 +117,16 @@ define [
                 progress = 100 * (info.progress / info.maxval)
                 percent = progress.toString() + '%'
                 @$progress.css 'width', percent
-                if info.fetch?
-                    label = 'Fetching... '
+
+                if typeof info.fetch isnt "undefined"
+                    label = 'Fetching... ' + info.fetch
                 else
                     label = 'Linking... '
                 @$progress.html label
             promise.then(@on_install)
 
         on_install: (data) =>
+            @hide()
             @$progress.removeClass 'progress-bar-info'
             if data.success? and data.success
                 @$progress.addClass 'progress-bar-success'

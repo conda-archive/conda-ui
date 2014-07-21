@@ -26,7 +26,13 @@ define [
             pkgs = for own name, info of installed
                 pkg = @pkgs.get_by_name(name)
                 if not pkg? then continue
-                _.find(pkg.get('pkgs'), (pkg) -> pkg.dist == info.dist)
+                installed_pkg = _.find(pkg.get('pkgs'), (pkg) -> pkg.dist == info.dist)
+                if installed_pkg?
+                    installed_pkg
+                else
+                    info.channel = '<not in a channel>'
+                    info.features = []
+                    info
 
             pkgs = _.sortBy(pkgs, (pkg) -> pkg.name)
 

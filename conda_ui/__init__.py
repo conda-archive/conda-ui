@@ -29,7 +29,6 @@ def start_server(args):
     routes = condajs_ws.urls
     routes.append((r".*", tornado.web.FallbackHandler, dict(fallback=wsgi_app)))
     application = tornado.web.Application(routes, debug=args.debug)
-
     application.listen(args.port)
     tornado.ioloop.IOLoop.instance().start()
 
