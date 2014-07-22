@@ -76,11 +76,15 @@ define [
 
         title_text: () -> @pkg.get('name')
 
-        submit_text: () =>
+        submit_text: () ->
             switch
-                when @update then "Update"
                 when @install then "Install"
                 else "Uninstall"
+
+        submit_type: () ->
+            switch
+                when @install then super()
+                else "danger"
 
         render_body: () ->
             headers = ['Name', 'Version', 'Build', 'Size', 'Channel', 'Features']
@@ -109,16 +113,30 @@ define [
             $table.append($('<tbody>').html($rows))
             $table
 
+        render_footer: () ->
+            $footer = super()
+            if @update
+                $update = $('<button type="submit" class="btn"></button>')
+                    .addClass("btn-info").text("Update").click(@on_update)
+            [$footer[0], $update, $footer[1]]
+
         render: () ->
             super()
             @$el.addClass("packages-modal")
 
+        on_update: (event) =>
+            env = @envs.get_active()
+            @action = "update"
+            env.attributes[@action]({
+                dryRun: true,
+                packages: [@pkg.get('name')]
+            }).then @on_plan
+
         on_submit: (event) =>
             env = @envs.get_active()
             @action = switch
-                when @update then "update"
                 when @install then "install"
-                else "uninstall"
+                else "remove"
             env.attributes[@action]({
                 dryRun: true,
                 packages: [@pkg.get('name')]

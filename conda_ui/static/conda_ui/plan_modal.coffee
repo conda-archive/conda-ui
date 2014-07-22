@@ -18,11 +18,11 @@ define [
             @action_noun = switch @action
                 when "update" then "Update"
                 when "install" then "Installation"
-                when "uninstall" then "Uninstallation"
+                when "remove" then "Uninstallation"
             @action_participle = switch @action
                 when "update" then "updated"
                 when "install" then "installed"
-                when "uninstall" then "uninstalled"
+                when "remove" then "uninstalled"
             super(options)
 
         title_text: () -> $("<span>#{@action_noun} plan for </span>").append($('<span>').text(@pkg.get('name')))
