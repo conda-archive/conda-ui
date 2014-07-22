@@ -15,8 +15,14 @@ define [
             @pkgs = options.pkgs
             @actions = options.actions
             @action = options.action
-            @action_noun = if @action is "install" then "Installation" else "Uninstallation"
-            @action_verb = if @action is "install" then "installed" else "uninstalled"
+            @action_noun = switch @action
+                when "update" then "Update"
+                when "install" then "Installation"
+                when "uninstall" then "Uninstallation"
+            @action_participle = switch @action
+                when "update" then "updated"
+                when "install" then "installed"
+                when "uninstall" then "uninstalled"
             super(options)
 
         title_text: () -> $("<span>#{@action_noun} plan for </span>").append($('<span>').text(@pkg.get('name')))
@@ -133,8 +139,8 @@ define [
             @$progress.removeClass 'progress-bar-info'
             if data.success? and data.success
                 @$progress.addClass 'progress-bar-success'
-                action_verb = @action_verb
-                new Dialog.View({type: "info", message: "#{@pkg.get('name')} was successfully #{action_verb}"}).show()
+                action_participle = @action_participle
+                new Dialog.View({type: "info", message: "#{@pkg.get('name')} was successfully #{action_participle}"}).show()
                 @pkgs.fetch(reset: true)
                 @envs.fetch(reset: true)
             else
