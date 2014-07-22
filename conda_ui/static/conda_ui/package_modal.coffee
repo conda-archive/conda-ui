@@ -14,13 +14,18 @@ define [
             @pkg = options.pkg
             @envs = options.envs
             @pkgs = options.pkgs
+
+            pkgs = @pkg.get 'pkgs'
+
+            @install = _.all(pkgs, (pkg) -> not pkg.installed)
             super(options)
 
         modal_size: () -> "large"
 
         title_text: () -> @pkg.get('name')
 
-        submit_text: () -> "Install"
+        submit_text: () =>
+            if @install then "Install" else "Uninstall"
 
         render_body: () ->
             headers = ['Name', 'Version', 'Build', 'Size', 'Channel', 'Features']
@@ -55,7 +60,8 @@ define [
 
         on_submit: (event) =>
             env = @envs.get_active()
-            env.attributes.install({
+            action = if @install then "install" else "remove"
+            env.attributes[action]({
                 dryRun: true,
                 packages: [@pkg.get('name')]
             }).then @on_plan
@@ -66,7 +72,13 @@ define [
                 if data.message?
                     new Dialog.View({ message: data.message, type: "Message" }).show()
                 else
-                    new PlanModal.View({pkg: @pkg, envs: @envs, pkgs: @pkgs, actions: data.actions}).show()
+                    new PlanModal.View({
+                        pkg: @pkg,
+                        envs: @envs,
+                        pkgs: @pkgs,
+                        actions: data.actions,
+                        action: if @install then "install" else "remove"
+                    }).show()
             else
                 new Dialog.View({ message: data.error, type: "Error" }).show()
 

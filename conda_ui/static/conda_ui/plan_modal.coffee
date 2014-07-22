@@ -14,9 +14,12 @@ define [
             @envs = options.envs
             @pkgs = options.pkgs
             @actions = options.actions
+            @action = options.action
+            @action_noun = if @action is "install" then "Installation" else "Uninstallation"
+            @action_verb = if @action is "install" then "installed" else "uninstalled"
             super(options)
 
-        title_text: () -> $('<span>Installation plan for </span>').append($('<span>').text(@pkg.get('name')))
+        title_text: () -> $("<span>#{@action_noun} plan for </span>").append($('<span>').text(@pkg.get('name')))
 
         submit_text: () -> "Proceed"
 
@@ -108,7 +111,7 @@ define [
 
         on_submit: (event) =>
             env = @envs.get_active()
-            promise = env.attributes.install({
+            promise = env.attributes[@action]({
                 packages: [@pkg.get('name')]
                 progress: true
             })
@@ -130,7 +133,10 @@ define [
             @$progress.removeClass 'progress-bar-info'
             if data.success? and data.success
                 @$progress.addClass 'progress-bar-success'
-                new Dialog.View({type: "info", message: "#{@pkg.get('name')} was successfully installed"}).show()
+                action_verb = @action_verb
+                new Dialog.View({type: "info", message: "#{@pkg.get('name')} was successfully #{action_verb}"}).show()
+                @pkgs.fetch(reset: true)
+                @envs.fetch(reset: true)
             else
                 @$progress.addClass 'progress-bar-error'
                 new Dialog.View({type: "error", message: data.error}).show()

@@ -14,7 +14,7 @@ define [
 
         sync: (method, model, options) ->
             if method is "read"
-                conda.search().then (data) ->
+                conda.index({ reload: true }).then (data) ->
                     restructured = for own key, pkgs of data
                         pkgs = for pkg in pkgs
                             pkg.dist = pkg.fn.slice(0, -8)

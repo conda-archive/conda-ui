@@ -14,7 +14,6 @@ define [
 
     class Envs extends Backbone.Collection
         model: Env
-        url: () -> "/api/envs"
 
         sync: (method, model, options) ->
             if method is "read"
@@ -28,10 +27,6 @@ define [
                         options.success envs
             else
                 console.log method
-
-        # parse: (response) ->
-        #     console.log response
-        #     response.envs
 
         get_by_name: (name) ->
             _.find(@models, (env) -> env.get('name') == name)
