@@ -66,6 +66,7 @@ define [
         on_cancel: (event) => @hide()
 
         on_shown: (event) =>
+            $('body').addClass('modal-open')
         on_hidden: (event) => @remove()
 
     return {View: ModalView}
