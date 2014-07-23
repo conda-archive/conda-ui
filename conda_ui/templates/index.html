@@ -7,6 +7,7 @@
         <script data-main="{{ static('conda_ui/conda.js') }}" src="{{ static('require-2.1.14/require.min.js') }}"></script>
         <link href="{{ static('bootstrap-3.1.1/css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="{{ static('font-awesome-4.1.0/css/font-awesome.min.css') }}" rel="stylesheet">
+        <link href="{{ static('bootstrap-tagsinput-0.3.9/css/bootstrap-tagsinput.css') }}" rel="stylesheet">
         <style>
         .package-name {
             cursor: pointer;
@@ -38,6 +39,10 @@
             margin: 0 20px;
             border-radius: 4px 4px 0 0;
             display: none;
+        }
+        .bootstrap-tagsinput {
+            display: block;
+            width: 100%;
         }
         </style>
         {% raw %}
@@ -90,6 +95,119 @@
               {{/}}
             </tbody>
           </table>
+        </script>
+        <script type="text/html" id="template-settings-dialog">
+          <p class="muted"><em>Note: some of these settings apply only to the command-line Conda interface.</em></p>
+          <form role="form">
+              <div class="form-group">
+                <label for="setting-channels">Channels</label>
+                <input id="setting-channels" value="{{channels.join(',')}}" data-key="channels" type="text" data-role="tagsinput" />
+              </div>
+              <div class="form-group">
+                <label for="setting-create-default-packages">Default Packages</label>
+                <input id="setting-create-default-packages" value="{{create_default_packages}}" data-key="create_default_packages" type="text" data-role="tagsinput" />
+                <span class="help-block">Packages to install by default when creating a new environment.</span>
+              </div>
+              <div class="form-group">
+                <label for="setting-disallow">Disallowed Names (command line)</label>
+                <input id="setting-disallow" value="{{disallow}}" data-key="disallow" type="text" data-role="tagsinput" />
+                <span class="help-block">Names disallowed in pacakge specifications.</span>
+              </div>
+              <div class="form-group">
+                <label for="setting-envs-dirs">Environment Directories</label>
+                <input id="setting-envs-dirs" value="{{envs_dirs}}" data-key="envs_dirs" type="text" data-role="tagsinput" />
+                <span class="help-block">Directories in which environments are located.</span>
+                <!-- TODO folder picker -->
+              </div>
+              <div class="form-group">
+                <label for="setting-track-features">Track Features</label>
+                <input id="setting-track-features" value="{{track_features}}" data-key="track_features" type="text" data-role="tagsinput" />
+              </div>
+          </form>
+          <form role="form" class="form-horizontal">
+            <div class="form-group">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input id="setting-allow-other-channels" data-key="allow_other_channels" type="checkbox" checked="{{#allow_other_channels}}checked{{/}}"> Allow other channels
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input id="setting-allow-softlinks" data-key="allow_softlinks" type="checkbox" checked="{{#allow_softlinks}}checked{{/}}"> Allow softlinks
+                  </label>
+                  <span class="help-block">Soft-link packages when possible.</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input id="setting-always-yes" data-key="always_yes" type="checkbox" checked="{{#always_yes}}checked{{/}}"> Always Assume Yes (command-line)
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input id="setting-binstar-upload" data-key="binstar_upload" type="checkbox" checked="{{#binstar_upload}}checked{{/}}"> Automatically upload built packages to Binstar
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input id="setting-changeps1" data-key="changeps1" type="checkbox"  checked="{{#changeps1}}checked{{/}}"> Change prompt when using activate (command line)
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input id="setting-binstar-personal" data-key="binstar_personal" type="checkbox"  checked="{{#binstar_personal}}checked{{/}}"> Do not upload Binstar packages to the public channel
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input id="setting-show-channel-urls" data-key="show_channel_urls" type="checkbox" checked="{{#show_channel_urls}}checked{{/}}"> Show channel URLs (command line)
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input id="setting-ssl-verify" data-key="ssl_verify" type="checkbox" checked="{{#ssl_verify}}checked{{/}}"> Enable SSL Verification
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <div class="checkbox">
+                  <label>
+                    <input id="setting-use-pip" data-key="use_pip" type="checkbox" checked="{{#use_pip}}checked{{/}}"> Use Pip when listing packages
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
         </script>
         {% endraw %}
     </head>

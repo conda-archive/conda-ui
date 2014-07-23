@@ -7,6 +7,7 @@ require.config
         underscore: 'underscore-1.6.0/underscore.min'
         backbone: 'backbone-1.1.2/backbone.min'
         bootstrap: 'bootstrap-3.1.1/js/bootstrap.min'
+        bootstrap_tagsinput: 'bootstrap-tagsinput-0.3.9/js/bootstrap-tagsinput.min'
         ractive: 'ractivejs-0.5.5/ractive'
         condajs: 'conda-js/conda'
     shim:
@@ -25,6 +26,9 @@ require.config
         bootstrap:
             deps: ['jquery']
             exports: 'modal'
+        bootstrap_tagsinput:
+            deps: ['jquery', 'bootstrap']
+            exports: '$'
         ractive:
             exports: ['Ractive']
         condajs:

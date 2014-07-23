@@ -29,13 +29,13 @@ def parse(subcommand, flags, positional):
                 'false': False,
                 'null': None
             }[value]
-        except KeyError:
+        except (TypeError, KeyError):
             pass
 
         if value is not False and value is not None:
             cmdList.append(convert(key))
             if isinstance(value, (list, tuple)):
-                cmdList.extend(value)
+                cmdList.extend(map(str, value))
             elif value is not True:
                 cmdList.append(value)
 

@@ -51,7 +51,7 @@ function apiContext() {
 
         var method = 'post';
         if (['info', 'list', 'search'].indexOf(command) !== -1 ||
-            command === 'config' && flags.get) {
+            command === 'config' && data.get) {
             method = 'get';
         }
 
