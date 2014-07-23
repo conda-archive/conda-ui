@@ -62,6 +62,7 @@ define [
         cancel_type: () -> "default"
 
         on_submit: (event) =>
+            @$('button').attr('disabled', 'disabled')
         on_cancel: (event) => @hide()
 
         on_shown: (event) =>

@@ -7,6 +7,7 @@ require.config
         underscore: 'underscore-1.6.0/underscore.min'
         backbone: 'backbone-1.1.2/backbone.min'
         bootstrap: 'bootstrap-3.1.1/js/bootstrap.min'
+        ractive: 'ractivejs-0.5.5/ractive'
         condajs: 'conda-js/conda'
     shim:
         jquery:
@@ -24,6 +25,8 @@ require.config
         bootstrap:
             deps: ['jquery']
             exports: 'modal'
+        ractive:
+            exports: ['Ractive']
         condajs:
             deps: ['jquery']
             exports: 'conda'
@@ -36,7 +39,8 @@ define [
     "conda_ui/installed"
     "conda_ui/history"
     "conda_ui/settings"
-], ($, Envs, Search, Packages, Installed, History, Settings) ->
+    "conda_ui/package_actions_bar"
+], ($, Envs, Search, Packages, Installed, History, Settings, PackageActionsBar) ->
 
     $(document).ready () ->
         envs = new Envs.Collection()
@@ -44,6 +48,8 @@ define [
 
         pkgs = new Packages.Collection()
         pkgs.fetch(reset: true)
+
+        PackageActionsBar.instance($('#package-actions'), envs, pkgs)
 
         new Envs.View({el: $('#envs'), envs: envs})
         new Search.View({el: $('#search'), pkgs: pkgs})

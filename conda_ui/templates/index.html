@@ -30,7 +30,68 @@
         .col-plan-build {
             width: 30%;
         }
+        .contextual-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: 0 20px;
+            border-radius: 4px 4px 0 0;
+            display: none;
+        }
         </style>
+        {% raw %}
+        <script type="text/html" id="template-package-table">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Build</th>
+                <th>Channel</th>
+                <th>Features</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#pkgs}}
+              <tr>
+                <td><input type="checkbox" on-change="select" />{{#update}} <i class="fa fa-arrow-circle-o-up" title="Update available"></i> {{/update}}</td>
+                <td data-package-name="{{name}}" on-click="name-click">{{name}}</td>
+                <td>{{version}}</td>
+                <td>{{build}}</td>
+                <td title="{{channel}}">{{channel}}</td>
+                <td>{{& features}}</td>
+              </tr>
+              {{/pkgs}}
+            </tbody>
+          </table>
+        </script>
+        <script type="text/html" id="template-history-table">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Revision</th>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Removed Version</th>
+                <th>Installed Version</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#history}}
+              <tr class="{{ style }}">
+                <td>{{revision}}</td>
+                <td>{{date}}</td>
+                <td><i class="fa fa-{{icon}}"></i>&nbsp;{{name}}</td>
+                <td>{{& old_version}}</td>
+                <td>{{& new_version}}</td>
+              </tr>
+              {{/}}
+            </tbody>
+          </table>
+        </script>
+        {% endraw %}
     </head>
     <body>
         <div class="navbar navbar-default">
@@ -50,14 +111,39 @@
             </div>
         </div>
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#pkgs" data-toggle="tab">Packages</a></li>
-            <li><a href="#installed" data-toggle="tab">Installed</a></li>
+            <li class="active"><a href="#installed" data-toggle="tab">Installed</a></li>
+            <li><a href="#pkgs" data-toggle="tab">Available Packages</a></li>
             <li><a href="#history" data-toggle="tab">History</a></li>
         </ul>
         <div class="tab-content" id="main-tabs">
-            <div class="tab-pane active" id="pkgs"></div>
-            <div class="tab-pane" id="installed"></div>
+            <div class="tab-pane active" id="installed">
+              <div class="loading">
+                  <p>Loading...</p>
+                  <div class="progress progress-striped active">
+                      <div class="progress-bar" role="progressbar" style="width: 100%">
+                      </div>
+                  </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="pkgs"></div>
             <div class="tab-pane" id="history"></div>
+        </div>
+        <div class="panel panel-default contextual-bar" id="package-actions">
+          <div class="panel-body">
+            <div class="pull-left">
+            <div class="btn-group">
+              <button type="button" class="btn btn-success install">Install</button>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-info update">Update</button>
+              <button type="button" class="btn btn-danger uninstall">Uninstall</button>
+            </div>
+            <span>(<span class="number-checked">6</span>) checked packages</span>
+            </div>
+            <div class="btn-group pull-right">
+              <button type="button" class="btn btn-default uncheck-all">Uncheck All</button>
+            </div>
+          </div>
         </div>
     </body>
 </html>

@@ -25,7 +25,13 @@ define [
                 when "remove" then "uninstalled"
             super(options)
 
-        title_text: () -> $("<span>#{@action_noun} plan for </span>").append($('<span>').text(@pkg.get('name')))
+        title_text: () ->
+            if _.isArray @pkg
+                text = @pkg.join(', ')
+            else
+                text = @pkg.get('name')
+
+            $("<span>#{@action_noun} plan for </span>").append($('<span>').text(text))
 
         submit_text: () -> "Proceed"
 
@@ -116,9 +122,10 @@ define [
             $plan
 
         on_submit: (event) =>
+            super()
             env = @envs.get_active()
             promise = env.attributes[@action]({
-                packages: [@pkg.get('name')]
+                packages: if _.isArray @pkg then @pkg else [@pkg.get('name')]
                 progress: true
             })
             promise.progress (info) =>
@@ -140,9 +147,13 @@ define [
             if data.success? and data.success
                 @$progress.addClass 'progress-bar-success'
                 action_participle = @action_participle
-                new Dialog.View({type: "info", message: "#{@pkg.get('name')} was successfully #{action_participle}"}).show()
                 @pkgs.fetch(reset: true)
                 @envs.fetch(reset: true)
+                if _.isArray @pkg
+                    name = @pkg.join(', ') + ' were'
+                else
+                    name = @pkg.get('name') + ' was'
+                new Dialog.View({type: "info", message: "#{name} successfully #{action_participle}"}).show()
             else
                 @$progress.addClass 'progress-bar-error'
                 new Dialog.View({type: "error", message: data.error}).show()

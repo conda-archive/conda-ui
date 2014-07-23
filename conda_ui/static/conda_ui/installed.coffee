@@ -2,7 +2,9 @@ define [
     "underscore"
     "jquery"
     "backbone"
-], (_, $, Backbone) ->
+    "ractive"
+    "conda_ui/package_actions_bar"
+], (_, $, Backbone, Ractive, PackageActionsBar) ->
 
     class InstalledView extends Backbone.View
 
@@ -10,16 +12,43 @@ define [
             super(options)
             @envs = options.envs
             @pkgs = options.pkgs
+
+            @ractive = new Ractive({
+                el: @el,
+                template: '#template-package-table',
+                data: {
+                    pkgs: []
+                }
+            })
+            @ractive.on 'select', @on_check
+
             @listenTo(@envs, 'all', () => @render())
             @listenTo(@pkgs, 'all', () => @render())
-            @render()
 
         render: () ->
             env = @envs.get_active()
             if not env? then return
 
-            headers = ['Name', 'Version', 'Build', 'Channel', 'Features']
-            $headers = $('<tr>').html($('<th>').text(text) for text in headers)
+            # Have conda figure out what needs updating
+            env.attributes.update({
+                dryRun: true
+                useLocal: true
+                all: true
+            }).then (data) =>
+                if data.success? and data.success
+                    updates = data.actions.LINK
+                    updates = updates.map (cmd) ->
+                        pkg = cmd.split(" ")[0]
+                        parts = pkg.split(/-/g)
+                        return parts.slice(0, -2).join('-')
+                else
+                    updates = []
+
+                for pkg in @installed
+                    if updates.indexOf(pkg.name) > -1
+                        pkg.update = true
+
+                @ractive.reset { pkgs: @installed }
 
             installed = env.get('installed')
 
@@ -33,24 +62,25 @@ define [
 
             pkgs = _.sortBy(pkgs, (pkg) -> pkg.name)
 
-            $rows = for pkg in pkgs
+            @installed = for pkg in pkgs
                 if @pkgs.do_filter(pkg.name)
                     continue
 
-                $name = $('<td>').text(pkg.name)
-                $version = $('<td>').text(pkg.version)
-                $build = $('<td>').text(pkg.build)
-                $channel = $('<td>').text(pkg.canonical_channel or pkg.channel).attr(title: pkg.channel)
-                $features = $('<td>&mdash;</td>')
+                {
+                    name: pkg.name,
+                    version: pkg.version,
+                    build: pkg.build,
+                    channel: pkg.canonical_channel or pkg.channel,
+                    features: if pkg.features.length > 0 then pkg.features.join(", ") else "&mdash;",
+                    update: false
+                }
 
-                if pkg.features.length > 0
-                    $features.text(pkg.features.join(", "))
+            @ractive.reset { pkgs: @installed }
 
-                $('<tr>').html([$name, $version, $build, $channel, $features])
-
-            $table = $('<table class="table table-bordered table-striped">')
-            $table.append($('<thead>').html($headers))
-            $table.append($('<tbody>').html($rows))
-            @$el.html($table)
+        on_check: (event) =>
+            pkg = $(event.node).parent().next().data('package-name')
+            checked = $(event.node).prop('checked')
+            PackageActionsBar.instance().setMode('installed')
+            PackageActionsBar.instance().on_check(pkg, checked)
 
     return {View: InstalledView}

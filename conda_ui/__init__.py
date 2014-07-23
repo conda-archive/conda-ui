@@ -30,7 +30,14 @@ def start_server(args):
     routes.append((r".*", tornado.web.FallbackHandler, dict(fallback=wsgi_app)))
     application = tornado.web.Application(routes, debug=args.debug)
     application.listen(args.port)
-    tornado.ioloop.IOLoop.instance().start()
+
+    ioloop = tornado.ioloop.IOLoop.instance()
+    if not args.debug:
+        import datetime
+        import webbrowser
+        delta = datetime.timedelta(seconds=3)
+        ioloop.add_timeout(delta, lambda: webbrowser.open_new_tab('http://localhost:%s' % args.port))
+    ioloop.start()
 
 
 def main():
