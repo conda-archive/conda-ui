@@ -9,6 +9,7 @@ require.config
         bootstrap: 'bootstrap-3.1.1/js/bootstrap.min'
         bootstrap_tagsinput: 'bootstrap-tagsinput-0.3.9/js/bootstrap-tagsinput.min'
         ractive: 'ractivejs-0.5.5/ractive'
+        promise: 'promise-4.0.0/promise'
         condajs: 'conda-js/conda'
     shim:
         jquery:
@@ -30,9 +31,11 @@ require.config
             deps: ['jquery', 'bootstrap']
             exports: '$'
         ractive:
-            exports: ['Ractive']
+            exports: 'Ractive'
+        promise:
+            exports: 'Promise'
         condajs:
-            deps: ['jquery']
+            deps: ['jquery', 'promise']
             exports: 'conda'
 
 define [
