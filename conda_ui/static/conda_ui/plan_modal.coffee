@@ -145,7 +145,6 @@ define [
             @hide()
             if data.success? and data.success
                 action_participle = @action_participle
-                @pkgs.fetch(reset: true)
                 @envs.fetch(reset: true)
                 if _.isArray @pkg
                     name = @pkg.join(', ') + (if @pkg.length is 1 then ' was' else ' were')

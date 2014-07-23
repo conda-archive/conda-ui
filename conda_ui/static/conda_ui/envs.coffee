@@ -18,14 +18,17 @@ define [
         sync: (method, model, options) ->
             if method is "read"
                 @trigger 'request'
-                conda.Env.getEnvs().then (envs) ->
+                conda.Env.getEnvs().then (envs) =>
                     promises = []
                     envs.forEach (env) ->
                         promises.push env.linked()
                         promises.push env.revisions()
 
-                    Promise.all(promises).then ->
+                    Promise.all(promises).then =>
                         options.success envs
+
+                        if @_active
+                            @set_active @_active.get('name')
             else
                 console.log method
 
@@ -94,6 +97,7 @@ define [
 
         on_activate: (active) =>
             @update_buttons(active)
+            @$select.find("option[value=#{active.get('name')}]").prop('selected', true)
 
         update_buttons: (active) ->
             active || (active = @envs.get_active())
