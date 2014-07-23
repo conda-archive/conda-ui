@@ -35,11 +35,32 @@ define [
             })
             @$form
 
+        add_progress: (progress) ->
+            @$form.remove()
+            @$progressContainer = $('<div class="progress progress-striped active">')
+            @$progress = $('<div class="progress-bar" role="progressbar">')
+            @$message = $('<p>')
+            @$progressContainer.append(@$progress)
+            @$el.find('.modal-body').append(@$message)
+            @$el.find('.modal-body').append(@$progressContainer)
+
+            progress.progress (info) =>
+                progress = 100 * (info.progress / info.maxval)
+                @$progress.css 'width', "#{progress}%"
+
+                if typeof info.fetch isnt "undefined"
+                    @$message.text 'Fetching... ' + info.fetch
+                else if typeof info.name isnt "undefined"
+                    @$message.text 'Linking...' + info.name
+                else
+                    @$message.text ''
+
+        update_progress: () ->
+
         on_submit: (event) =>
             @$form.submit()
 
         on_form_submit: (event) =>
             @doit(@$input.val())
-            @hide()
 
     return {View: EnvModalView}

@@ -11,11 +11,18 @@ define [
         submit_text: () -> "Clone"
 
         doit: (new_name) ->
-            @envs.get_active().attributes.clone({ name: new_name })
-                .then @on_env_clone(new_name)
+            progress = @envs.get_active().attributes.clone({
+                name: new_name
+                progress: true
+            })
+            progress.then @on_env_clone(new_name)
+
+            @add_progress(progress)
+            @disable_buttons()
 
         on_env_clone: (new_name) =>
             (data) =>
+                @hide()
                 env = data.env
                 Promise.all([env.linked(), env.revisions()]).then =>
                     @envs.add env

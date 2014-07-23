@@ -1,6 +1,6 @@
 package:
   name: conda-ui
-  version: 0.1.0
+  version: 0.1.1
 
 build:
   number: {{ environ.get('BINSTAR_BUILD', 1) }}
@@ -17,6 +17,7 @@ requirements:
     - flask
     - conda
     - tornado
+    - sockjs-tornado
 
 app:
   entry: conda-ui

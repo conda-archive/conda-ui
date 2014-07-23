@@ -11,17 +11,23 @@ define [
         submit_text: () -> "Create"
 
         doit: (new_name) ->
-            api.conda.Env.create({
+            progress = api.conda.Env.create({
                 name: new_name
                 packages: ['python']
-            }).then @on_env_new(new_name)
+                progress: true
+            })
+            progress.then @on_env_new(new_name)
+
+            @add_progress(progress)
+            @disable_buttons()
 
         on_env_new: (new_name) =>
             (data) =>
-                console.log data
+                @hide()
                 env = data.env
                 Promise.all([env.linked(), env.revisions()]).then =>
                     @envs.add env
+                    @envs.set_active new_name
                     @envs.reset(@envs.models)
 
     return {View: NewEnvView}
