@@ -3,10 +3,11 @@ define [
     "jquery"
     "backbone"
     "ractive"
+    "conda_ui/tab_view"
     "conda_ui/package_modal"
     "conda_ui/package_actions_bar"
 
-], (_, $, Backbone, Ractive, PackageModal, PackageActionsBar) ->
+], (_, $, Backbone, Ractive, TabView, PackageModal, PackageActionsBar) ->
 
     class Package extends Backbone.Model
         defaults: -> {}
@@ -49,15 +50,10 @@ define [
         do_filter: (name) ->
             @_filter? and @_filter.length != 0 and name.indexOf(@_filter) == -1
 
-    class PackagesView extends Backbone.View
+    class PackagesView extends TabView.View
 
         initialize: (options) ->
-            super(options)
-            @envs = options.envs
-            @pkgs = options.pkgs
-
             @ractive = new Ractive({
-                el: @el,
                 template: '#template-package-table',
                 data: {
                     pkgs: []
@@ -65,9 +61,7 @@ define [
             })
             @ractive.on 'select', @on_check
             @ractive.on 'name-click', @on_name_click
-
-            @listenTo(@envs, 'all', () => @render())
-            @listenTo(@pkgs, 'all', () => @render())
+            super(options)
 
         render: () ->
             env = @envs.get_active()
@@ -94,6 +88,9 @@ define [
                 }
 
             @ractive.reset { pkgs: @installed }
+            if not @ractive.el?
+                @ractive.render @el
+            @loading.hide()
 
         on_name_click: (event) =>
             name = $(event.node).data("package-name")

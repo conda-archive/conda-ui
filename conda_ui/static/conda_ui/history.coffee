@@ -1,26 +1,21 @@
 define [
     "underscore"
     "jquery"
-    "backbone",
+    "backbone"
+    "conda_ui/tab_view"
     "condajs"
-], (_, $, Backbone, conda) ->
+], (_, $, Backbone, TabView, conda) ->
 
-    class HistoryView extends Backbone.View
+    class HistoryView extends TabView.View
 
         initialize: (options) ->
-            super(options)
-            @envs = options.envs
-            @pkgs = options.pkgs
-
             @ractive = new Ractive({
-                el: @el,
                 template: '#template-history-table',
                 data: {
                     history: []
                 }
             })
-            @listenTo(@envs, 'all', () => @render())
-            @listenTo(@pkgs, 'filter', () => @render())
+            super(options)
 
         render: () ->
             env = @envs.get_active()
@@ -77,6 +72,9 @@ define [
                             }
 
                 @ractive.reset { history: @history }
+                if not @ractive.el?
+                    @ractive.render @el
+                @loading.hide()
             else
                 @$el.html("History was not recorded for this environment.")
 

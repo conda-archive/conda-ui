@@ -17,6 +17,7 @@ define [
 
         sync: (method, model, options) ->
             if method is "read"
+                @trigger 'request'
                 conda.Env.getEnvs().then (envs) ->
                     promises = []
                     envs.forEach (env) ->
