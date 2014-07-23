@@ -13,6 +13,9 @@ define [
             @envs = options.envs
             @pkgs = options.pkgs
 
+            @loading = @$('.loading')
+            @updates = []
+
             @ractive = new Ractive({
                 el: @el,
                 template: '#template-package-table',
@@ -22,13 +25,14 @@ define [
             })
             @ractive.on 'select', @on_check
 
-            @listenTo(@envs, 'all', () => @render())
-            @listenTo(@pkgs, 'all', () => @render())
+            @listenTo(@envs, 'sync', () => @render(); @update())
+            @listenTo(@pkgs, 'sync', () => @render())
+            @listenTo(@envs, 'activate', () => @render())
+            @listenTo(@pkgs, 'filter', () => @render())
 
-        render: () ->
+        update: () ->
             env = @envs.get_active()
             if not env? then return
-
             # Have conda figure out what needs updating
             env.attributes.update({
                 dryRun: true
@@ -37,18 +41,18 @@ define [
             }).then (data) =>
                 if data.success? and data.success
                     updates = data.actions.LINK
-                    updates = updates.map (cmd) ->
+                    @updates = updates.map (cmd) ->
                         pkg = cmd.split(" ")[0]
                         parts = pkg.split(/-/g)
                         return parts.slice(0, -2).join('-')
                 else
-                    updates = []
+                    @updates = []
 
-                for pkg in @installed
-                    if updates.indexOf(pkg.name) > -1
-                        pkg.update = true
+                @render()
 
-                @ractive.reset { pkgs: @installed }
+        render: () ->
+            env = @envs.get_active()
+            if not env? then return
 
             installed = env.get('installed')
 
@@ -72,10 +76,11 @@ define [
                     build: pkg.build,
                     channel: pkg.canonical_channel or pkg.channel,
                     features: if pkg.features.length > 0 then pkg.features.join(", ") else "&mdash;",
-                    update: false
+                    update: @updates.indexOf(pkg.name) > -1
                 }
 
             @ractive.reset { pkgs: @installed }
+            @loading.hide()
 
         on_check: (event) =>
             pkg = $(event.node).parent().next().data('package-name')

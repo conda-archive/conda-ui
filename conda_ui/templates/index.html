@@ -55,8 +55,8 @@
             </thead>
             <tbody>
               {{#pkgs}}
-              <tr>
-                <td><input type="checkbox" on-change="select" />{{#update}} <i class="fa fa-arrow-circle-o-up" title="Update available"></i> {{/update}}</td>
+              <tr class="{{#update}}info{{/update}}">
+                <td><input type="checkbox" on-change="select" />{{#update}} <i class="fa fa-arrow-circle-up" title="Update available"></i> {{/update}}</td>
                 <td data-package-name="{{name}}" on-click="name-click">{{name}}</td>
                 <td>{{version}}</td>
                 <td>{{build}}</td>

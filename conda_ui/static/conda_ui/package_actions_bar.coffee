@@ -4,8 +4,9 @@ define [
     "backbone"
     "conda_ui/dialog"
     "conda_ui/plan_modal"
+    "conda_ui/loading_modal"
 
-], (_, $, Backbone, Dialog, PlanModal) ->
+], (_, $, Backbone, Dialog, PlanModal, LoadingModal) ->
 
     class PackageActionsBar extends Backbone.View
         events:
@@ -68,6 +69,9 @@ define [
         on_update: (event) =>
             @action 'update'
 
+        on_uncheck_all: (event) =>
+            @hide()
+
         action: (action) ->
             @pkg = _.keys(@checked)
 
@@ -78,10 +82,13 @@ define [
             })
 
             promise.then @on_plan(action)
+            @loading = new LoadingModal.View({ title: "Generating plan..." })
+            @loading.show()
             @hide()
 
         on_plan: (action) =>
             (data) =>
+                @loading.hide()
                 if data.success? and data.success
                     if data.message?
                         new Dialog.View({ message: data.message, type: "Message" }).show()

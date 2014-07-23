@@ -122,7 +122,7 @@ define [
             $plan
 
         on_submit: (event) =>
-            super()
+            @disable_buttons()
             env = @envs.get_active()
             promise = env.attributes[@action]({
                 packages: if _.isArray @pkg then @pkg else [@pkg.get('name')]
@@ -143,14 +143,12 @@ define [
 
         on_install: (data) =>
             @hide()
-            @$progress.removeClass 'progress-bar-info'
             if data.success? and data.success
-                @$progress.addClass 'progress-bar-success'
                 action_participle = @action_participle
                 @pkgs.fetch(reset: true)
                 @envs.fetch(reset: true)
                 if _.isArray @pkg
-                    name = @pkg.join(', ') + ' were'
+                    name = @pkg.join(', ') + (if @pkg.length is 1 then ' was' else ' were')
                 else
                     name = @pkg.get('name') + ' was'
                 new Dialog.View({type: "info", message: "#{name} successfully #{action_participle}"}).show()

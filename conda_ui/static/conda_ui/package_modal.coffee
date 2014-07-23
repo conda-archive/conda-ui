@@ -125,6 +125,7 @@ define [
             @$el.addClass("packages-modal")
 
         on_update: (event) =>
+            @disable_buttons()
             env = @envs.get_active()
             @action = "update"
             env.attributes[@action]({
@@ -133,6 +134,7 @@ define [
             }).then @on_plan
 
         on_submit: (event) =>
+            @disable_buttons()
             env = @envs.get_active()
             @action = switch
                 when @install then "install"
@@ -143,8 +145,8 @@ define [
             }).then @on_plan
 
         on_plan: (data) =>
+            @enable_buttons()
             if data.success? and data.success
-                @hide()
                 if data.message?
                     new Dialog.View({ message: data.message, type: "Message" }).show()
                 else

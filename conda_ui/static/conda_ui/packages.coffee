@@ -7,6 +7,8 @@ define [
     "conda_ui/package_actions_bar"
 
 ], (_, $, Backbone, Ractive, PackageModal, PackageActionsBar) ->
+    # Load from index cache the first time
+    isFirst = true
 
     class Package extends Backbone.Model
         defaults: -> {}
@@ -16,7 +18,7 @@ define [
 
         sync: (method, model, options) ->
             if method is "read"
-                conda.index({ reload: true }).then (data) ->
+                conda.index({ reload: !isFirst }).then (data) ->
                     restructured = for own key, pkgs of data
                         pkgs = for pkg in pkgs
                             pkg.dist = pkg.fn.slice(0, -8)
@@ -26,6 +28,7 @@ define [
                             pkgs: pkgs
                         }
                     options.success restructured
+                isFirst = false
             else
                 console.log method
 
@@ -97,7 +100,6 @@ define [
 
         on_name_click: (event) =>
             name = $(event.node).data("package-name")
-            console.log(name)
             pkg = @pkgs.get_by_name(name)
             new PackageModal.View({pkg: pkg, envs: @envs, pkgs: @pkgs}).show()
 
