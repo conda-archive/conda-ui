@@ -46,6 +46,7 @@ define [
                 delete @checked[pkg]
 
             @$el.find('.number-checked').html(_.size(@checked))
+            @$el.find('.checked-names').html(_.keys(@checked).sort().join(', '))
 
             if not @visible
                 @visible = true
