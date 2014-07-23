@@ -55,7 +55,7 @@ define [
 
         PackageActionsBar.instance($('#package-actions'), envs, pkgs)
 
-        new Envs.View({el: $('#envs'), envs: envs})
+        new Envs.View({el: $('#envs'), envs: envs, pkgs: pkgs})
         new Search.View({el: $('#search'), pkgs: pkgs})
         new Packages.View({el: $('#pkgs'), envs: envs, pkgs: pkgs})
         new Installed.View({el: $('#installed'), envs: envs, pkgs: pkgs})

@@ -61,17 +61,8 @@ def api_condajs(subcommand):
 
     cmdList = parse(subcommand, flags, positional)
 
-    stdout = StringIO()
-    old = sys.stdout
-    sys.stdout = stdout
-    sys.argv = cmdList
-    try:
-        cli.main()
-    except SystemExit:
-        pass
-    sys.stdout = old
-    stdout.seek(0)
-    return stdout.read()
+    p = subprocess.Popen(cmdList, stdout=subprocess.PIPE)
+    return p.communicate()[0]
 
 import sockjs.tornado
 import tornado.iostream
