@@ -21,11 +21,14 @@ define [
             @ractive.on 'select', @on_check
 
             super(options)
-            @listenTo(@envs, 'sync', () => @update())
+
+            @listenTo(@envs, 'activate', () => @update())
+            @envs.once 'sync', () => @update()
 
         update: () ->
             env = @envs.get_active()
             if not env? then return
+            console.log "Checking for updates"
             # Have conda figure out what needs updating
             env.attributes.update({
                 dryRun: true
@@ -42,6 +45,7 @@ define [
                     @updates = []
 
                 @render()
+                @notify_updates()
 
         render: () ->
             env = @envs.get_active()
@@ -73,9 +77,29 @@ define [
                 }
 
             @ractive.reset { pkgs: @installed }
+            $('#tab-installed').find('.badge').text(@installed.length)
             if not @ractive.el?
                 @ractive.render @el
+
             @loading.hide()
+            @$el.find('.alert').remove()
+            PackageActionsBar.instance().hide()
+
+        notify_updates: () ->
+            @$el.find('.alert').remove()
+            if @updates.length is 0 then return
+
+            alert = $('<div class="alert alert-info alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" style="padding: 6px;"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <strong style="display: inline-block; padding: 7px 0;">Updates Available</strong> <button type="button" class="btn btn-default pull-right select" data-dismiss="alert">Select Packages</button>
+            </div>')
+            alert.find('.select').click =>
+                @$el.find('input[data-update=update]')
+                    .prop('checked', true)
+                    .each (i, el) =>
+                        @on_check({ node: $(el) })
+            @$el.prepend(alert)
+            alert.hide().slideDown(500)
 
         on_check: (event) =>
             pkg = $(event.node).parent().next().data('package-name')

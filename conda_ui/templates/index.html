@@ -61,7 +61,7 @@
             <tbody>
               {{#pkgs}}
               <tr class="{{#update}}info{{/update}}">
-                <td><input type="checkbox" on-change="select" />{{#update}} <i class="fa fa-arrow-circle-up" title="Update available"></i> {{/update}}</td>
+                <td><input type="checkbox" on-change="select" data-update="{{#update}}update{{/}}" />{{#update}} <i class="fa fa-arrow-circle-up" title="Update available"></i> {{/update}}</td>
                 <td data-package-name="{{name}}" on-click="name-click">{{name}}</td>
                 <td>{{version}}</td>
                 <td>{{build}}</td>
@@ -229,8 +229,8 @@
             </div>
         </div>
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#installed" data-toggle="tab">Installed</a></li>
-            <li><a href="#pkgs" data-toggle="tab">Available Packages</a></li>
+            <li class="active" id="tab-installed"><a href="#installed" data-toggle="tab">Installed <span class="badge">0</span></a></li>
+            <li id="tab-pkgs"><a href="#pkgs" data-toggle="tab">Available Packages <span class="badge">0</span></a></li>
             <li><a href="#history" data-toggle="tab">History</a></li>
         </ul>
         <div class="tab-content" id="main-tabs">

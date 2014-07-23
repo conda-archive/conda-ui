@@ -88,6 +88,7 @@ define [
                 }
 
             @ractive.reset { pkgs: @installed }
+            $('#tab-pkgs').find('.badge').text(@installed.length)
             if not @ractive.el?
                 @ractive.render @el
             @loading.hide()
