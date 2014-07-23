@@ -24,8 +24,11 @@ define [
                     data[key] = value
                 @ractive.reset data
 
-                @$el.find('input[data-role=tagsinput]').tagsinput({
+                @$el.find('input[data-role=tagsinput]:not(#setting-envs-dirs)').tagsinput({
                     confirmKeys: [13, 32],  # Enter, space
+                })
+                @$el.find('#setting-envs-dirs').tagsinput({
+                    confirmKeys: [13],  # Only Enter
                 })
 
                 @original = @get_values()

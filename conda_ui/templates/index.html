@@ -8,46 +8,7 @@
         <link href="{{ static('bootstrap-3.1.1/css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="{{ static('font-awesome-4.1.0/css/font-awesome.min.css') }}" rel="stylesheet">
         <link href="{{ static('bootstrap-tagsinput-0.3.9/css/bootstrap-tagsinput.css') }}" rel="stylesheet">
-        <style>
-        body {
-            padding-top: 70px;
-        }
-        .package-name {
-            cursor: pointer;
-        }
-        .packages-modal .modal-body {
-            max-height: 420px;
-            overflow-y: auto;
-        }
-        .modal {
-            overflow: auto;
-        }
-        #main-tabs > .tab-pane {
-            padding: 1em 1em 0 1em;
-        }
-        .col-plan-name {
-            width: 40%;
-        }
-        .col-plan-version {
-            width: 30%;
-        }
-        .col-plan-build {
-            width: 30%;
-        }
-        .contextual-bar {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            margin: 0 20px;
-            border-radius: 4px 4px 0 0;
-            display: none;
-        }
-        .bootstrap-tagsinput {
-            display: block;
-            width: 100%;
-        }
-        </style>
+        <link href="{{ static('conda_ui/conda.css') }}" rel="stylesheet">
         {% raw %}
         <script type="text/html" id="template-package-table">
           <table class="table table-bordered table-striped">
@@ -114,13 +75,13 @@
               <div class="form-group">
                 <label for="setting-disallow">Disallowed Names (command line)</label>
                 <input id="setting-disallow" value="{{disallow}}" data-key="disallow" type="text" data-role="tagsinput" />
-                <span class="help-block">Names disallowed in pacakge specifications.</span>
+                <span class="help-block">Names disallowed in package specifications.</span>
               </div>
               <div class="form-group">
                 <label for="setting-envs-dirs">Environment Directories</label>
                 <input id="setting-envs-dirs" value="{{envs_dirs}}" data-key="envs_dirs" type="text" data-role="tagsinput" />
                 <span class="help-block">Directories in which environments are located.</span>
-                <!-- TODO folder picker -->
+                <!-- TODO folder picker - may not be possible in HTML. -->
               </div>
               <div class="form-group">
                 <label for="setting-track-features">Track Features</label>
@@ -216,21 +177,19 @@
     </head>
     <body>
         <div class="navbar navbar-default navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">Conda</a>
-                </div>
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                    </ul>
-                    <form class="navbar-form navbar-left" id="envs">
-                    </form>
-                    <form class="navbar-form navbar-left" id="search">
-                    </form>
-                    <button type="button" class="btn btn-default navbar-btn navbar-right" id="settings">
-                        <i class="fa fa-gears"></i> Settings
-                    </button>
-                </div>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Conda</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                </ul>
+                <form class="navbar-form navbar-left" id="envs">
+                </form>
+                <form class="navbar-form navbar-left" id="search">
+                </form>
+                <button type="button" class="btn btn-default navbar-btn navbar-right" id="settings">
+                    <i class="fa fa-gears"></i> Settings
+                </button>
             </div>
         </div>
         <ul class="nav nav-tabs">
