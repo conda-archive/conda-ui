@@ -4,16 +4,7 @@ define [
 ], ($, conda) ->
     conda.API_ROOT = '/condajs'
 
-    api = (url, data, success, failure) ->
-        $.ajax({
-            url: "/api/" + url,
-            type: 'POST',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: JSON.stringify(data),
-            success: success,
-            failure: failure,
-        })
+    $(document).ajaxError () ->
+        alert("Could not connect to Conda server. Please restart server and refresh this page.")
 
-    api.conda = conda # Compatibility with non-ported code
-    return api
+    return { conda: conda }
