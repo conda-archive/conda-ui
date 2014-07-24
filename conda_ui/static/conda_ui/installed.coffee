@@ -63,7 +63,7 @@ define [
 
             pkgs = _.sortBy(pkgs, (pkg) -> pkg.name)
 
-            @installed = for pkg in pkgs
+            data = for pkg in pkgs
                 if @pkgs.do_filter(pkg.name)
                     continue
 
@@ -76,8 +76,8 @@ define [
                     update: @updates.indexOf(pkg.name) > -1
                 }
 
-            @ractive.reset { pkgs: @installed }
-            $('#tab-installed').find('.badge').text(@installed.length)
+            @ractive.reset { pkgs: data }
+            $('#tab-installed').find('.badge').text(data.length)
             if not @ractive.el?
                 @ractive.render @el
 

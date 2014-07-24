@@ -71,7 +71,7 @@ define [
 
             installed = env.get('installed')
 
-            @installed = for pkg in @pkgs.models
+            data = for pkg in @pkgs.models
                 name = pkg.get('name')
                 pkgs = pkg.get('pkgs')
 
@@ -89,8 +89,8 @@ define [
                     features: if pkg.features.length > 0 then pkg.features.join(", ") else "&mdash;"
                 }
 
-            @ractive.reset { pkgs: @installed }
-            $('#tab-pkgs').find('.badge').text(@installed.length)
+            @ractive.reset { pkgs: data }
+            $('#tab-pkgs').find('.badge').text(data.length)
             if not @ractive.el?
                 @ractive.render @el
             @hideLoading()
