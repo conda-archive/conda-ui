@@ -11,8 +11,14 @@ var __makeProgressPromise = function(promise) {
     };
 
     var fixThen = function(promise) {
+        if (typeof Promise.prototype.then === "undefined") {
+            var oldThen = promise.then;
+        }
+        else {
+            var oldThen = Promise.prototype.then.bind(promise);
+        }
         promise.then = function(f, g) {
-            var result = Promise.prototype.then.bind(promise)(f, g);
+            var result = oldThen(f, g);
             result.progress = promise.progress.bind(result);
             fixThen(result);
             return result;
@@ -230,12 +236,17 @@ var newContext = function() {
 if ((typeof module === 'object' && typeof define !== 'function') || (window && window.nodeRequire)) {
     // We are in Node.js or Node-webkit/Atom Shell
 
+    // We don't want to redefine require - in the browser it confuses AMD
+    // apps and in Node it confuses browserify.
     if (typeof window !== "undefined" && window.nodeRequire) {
-        var require = window.nodeRequire;
+        var ChildProcess = window.nodeRequire('child_process');
+        // We assume the Promise polyfill has been included.
+        var Promise = window.Promise;
     }
-
-    var ChildProcess = require('child_process');
-    var Promise = require('promise');
+    else {
+        var ChildProcess = require('child_process');
+        var Promise = require('promise');
+    }
 
     // converts a name like useIndexCache to --use-index-cache
     var __convert = function(f) {
@@ -384,14 +395,18 @@ if ((typeof module === 'object' && typeof define !== 'function') || (window && w
         return __makeProgressPromise(promise);
     };
 
-    module.exports = factory(api);
-    module.exports.api = api;
-    module.exports.progressApi = progressApi;
-
     if (typeof window !== "undefined" && typeof window.nodeRequire !== "undefined") {
-        // For node-webkit/Atom Shell we provide the browser API as these
-        // environments are a mix of Node and browser
-        module.exports.newContext = newContext;
+        window.conda = factory(api);
+        window.conda.api = api;
+        window.conda.progressApi = api;
+        // For node-webkit/Atom Shell we provide the browser API as well, as
+        // these environments are a mix of Node and browser
+        window.conda.newContext = newContext;
+    }
+    if (typeof module !== "undefined" && typeof module.exports !== "undefined") {
+        module.exports = factory(api);
+        module.exports.api = api;
+        module.exports.progressApi = progressApi;
     }
 }
 else {
@@ -741,6 +756,7 @@ function factory(api) {
             this.fn = fn;
             this.name = info.name;
             this.build = info.build;
+            this.build_number = info.build_number;
             this.dist = this.fn;
             this.version = info.version;
             this.info = info;
@@ -759,6 +775,71 @@ function factory(api) {
                 build: parts[parts.length - 1],
                 version: parts[parts.length - 2]
             };
+        };
+
+        Package.parseVersion = function(version) {
+            var matches = version.match(/(\d)+\.(\d+)((?:\.\d)*)(rc\d+)?/);
+            var parts = [parseInt(matches[1], 10), parseInt(matches[2], 10)];
+            var extra = matches[3];
+            if (typeof extra !== "undefined") {
+                extra = extra.split(/\./g).slice(1);
+                extra.forEach(function(e) {
+                    parts.push(parseInt(e, 10));
+                });
+            }
+            var rc = matches[4];
+            if (typeof rc !== "undefined") {
+                rc = parseInt(rc.slice(2), 10);
+            }
+            else {
+                rc = null
+            }
+            return {
+                parts: parts,
+                rc: rc
+            };
+        };
+
+        /** Is pkg2 newer than pkg1
+         */
+        Package.isGreater = function(pkg1, pkg2) {
+            if (pkg1.version === pkg2.version) {
+                return pkg2.build_number > pkg1.build_number;
+            }
+
+            var parts1 = Package.parseVersion(pkg1.version);
+            var parts2 = Package.parseVersion(pkg2.version);
+            for (var i = 0, len = Math.max(parts1.parts.length, parts2.parts.length);
+                 i < len; i++) {
+                var part1 = parts1.parts[i];
+                var part2 = parts2.parts[i];
+                var part1d = typeof part1 !== "undefined";
+                var part2d = typeof part2 !== "undefined";
+
+                if (part1d && !part2d) {
+                    return false;
+                }
+                else if (!part1d && part2d) {
+                    return true;
+                }
+
+                if (part2 > part1) {
+                    return true;
+                }
+                if (part2 < part1) {
+                    return false;
+                }
+            }
+
+            if (parts1.rc !== null && parts2.rc === null) {
+                return true;
+            }
+            else if (parts1.rc === null && parts2.rc !== null) {
+                return false;
+            }
+            else {
+                return parts2.rc > parts1.rc;
+            }
         };
 
         Package.load = function(fn, reload) {
