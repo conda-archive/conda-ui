@@ -107,6 +107,12 @@ define [
             @$el.prepend(alert)
             alert.hide().slideDown(500)
 
+        on_name_click: (event) =>
+            name = $(event.node).data("package-name")
+            pkg = @pkgs.get_by_name(name)
+            # TODO handle pkgs not in index - add unknown to index?
+            new PackageModal.View({pkg: pkg, envs: @envs, pkgs: @pkgs}).show()
+
         on_check: (event) =>
             pkg = $(event.node).parent().next().data('package-name')
             checked = $(event.node).prop('checked')
