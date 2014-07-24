@@ -14,10 +14,11 @@ define [
 
     class Packages extends Backbone.Collection
         model: Package
+        firstLoad: true
 
         sync: (method, model, options) ->
             if method is "read"
-                conda.index({ reload: true }).then (data) ->
+                conda.index({ reload: not @firstLoad }).then (data) ->
                     restructured = for own key, pkgs of data
                         pkgs = for pkg in pkgs
                             pkg.dist = pkg.fn.slice(0, -8)
@@ -27,6 +28,7 @@ define [
                             pkgs: pkgs
                         }
                     options.success restructured
+                @firstLoad = false
             else
                 console.log method
 
