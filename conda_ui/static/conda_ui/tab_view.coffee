@@ -10,8 +10,8 @@ define [
             @pkgs = options.pkgs
 
             @loading = $('
-              <div class="loading">
-                <p>Loading...</p>
+              <div class="loading container">
+                <h3>Loading...</h3>
                 <div class="progress progress-striped active">
                   <div class="progress-bar" role="progressbar" style="width: 100%">
                   </div>
@@ -23,5 +23,11 @@ define [
             @listenTo(@envs, 'activate', () => @render())
             @listenTo(@pkgs, 'filter', () => @render())
             @listenTo(@envs, 'request', () => @loading.fadeIn(400))
+
+        showLoading: ->
+            @loading.slideDown()
+
+        hideLoading: ->
+            @loading.slideUp()
 
     return { View: TabView }

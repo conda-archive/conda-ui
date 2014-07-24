@@ -81,7 +81,7 @@ define [
             if not @ractive.el?
                 @ractive.render @el
 
-            @loading.hide()
+            @hideLoading()
             @$el.find('.alert').remove()
             PackageActionsBar.instance().hide()
 
