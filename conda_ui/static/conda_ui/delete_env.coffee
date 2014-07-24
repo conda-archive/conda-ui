@@ -1,14 +1,10 @@
 define [
     "jquery"
     "conda_ui/api"
-    "conda_ui/modal"
-], ($, api, Modal) ->
+    "conda_ui/env_modal"
+], ($, api, EnvModal) ->
 
-    class DeleteEnvView extends Modal.View
-
-        initialize: (options) ->
-            @envs = options.envs
-            super(options)
+    class DeleteEnvView extends EnvModal.View
 
         title_text: () -> "Delete environment"
 
@@ -24,10 +20,14 @@ define [
         on_submit: (event) =>
             env = @envs.get_active()
             # Env.attributes is the conda-js Env object
-            env.attributes.removeEnv().then @on_env_delete
-            @hide()
+            progress = env.attributes.removeEnv({ progress: true })
+            progress.then @on_env_delete
+
+            @add_progress(progress)
+            @disable_buttons()
 
         on_env_delete: (data) =>
+            @hide()
             @envs.remove @envs.get_active()
             @envs.reset @envs.models
             @envs.set_active 'root'

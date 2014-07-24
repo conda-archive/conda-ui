@@ -36,7 +36,8 @@ define [
             @$form
 
         add_progress: (progress) ->
-            @$form.remove()
+            if @$form?
+                @$form.remove()
             @$progressContainer = $('<div class="progress progress-striped active">')
             @$progress = $('<div class="progress-bar" role="progressbar">')
             @$message = $('<p>')
