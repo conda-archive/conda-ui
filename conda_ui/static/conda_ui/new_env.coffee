@@ -10,10 +10,37 @@ define [
 
         submit_text: () -> "Create"
 
+        render_body: () ->
+            super()
+            python = @pkgs.get_by_name('python')
+            if not python or not @envs.get_active()
+                # Collection hasn't loaded yet, let conda deal with it
+                @$form
+
+            installed = @envs.get_active().get('installed').python
+
+            $label = $('<label>Python Version</label>')
+            @$python = $('<select class="form-control" name="python"></select>')
+            $help = $('<span class="help-block">Pick the Python version to install.</span>')
+            $form_group = $('<div class="form-group">').append([$label, @$python, $help])
+            @$form.append($form_group)
+
+            for pkg in python.get('pkgs')
+                $option = $('<option></option>').text("#{pkg.version}-#{pkg.build}")
+                if pkg.version is installed.version and pkg.build is installed.build
+                    $option.prop('selected', true)
+                @$python.append($option)
+
+            @$form
+
         doit: (new_name) ->
+            python = 'python'
+            if @$python?
+                python += '=' + @$python.val().replace('-', '=')
+
             progress = api.conda.Env.create({
                 name: new_name
-                packages: ['python']
+                packages: [python]
                 progress: true
             })
             progress.then @on_env_new(new_name)

@@ -8,6 +8,7 @@ define [
 
         initialize: (options) ->
             @envs = options.envs
+            @pkgs = options.pkgs
             super(options)
 
         render_body: () ->

@@ -46,9 +46,10 @@ define [
                         console.log e.stack
                         continue
                     if newer.length > 0
-                        if name is 'python' and info.version.slice(0, 2) is "2."
-                            # Don't tell user to update to Py 3
-                            if _.any(newer, (pkg) -> pkg.version.slice(0, 2) is "2.")
+                        if name is python
+                            # Don't tell user to update major versions
+                            major = info.version.slice(0, 2)
+                            if _.any(newer, (pkg) -> pkg.version.slice(0, 2) is major)
                                 @updates.push(name)
                         else
                             @updates.push(name)

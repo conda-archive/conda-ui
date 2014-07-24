@@ -116,13 +116,13 @@ define [
                     @$delete_btn.removeAttr("disabled")
 
         on_delete_click: (event) =>
-            new DeleteEnv.View(envs: @envs).show()
+            new DeleteEnv.View(envs: @envs, pkgs: @pkgs).show()
 
         on_clone_click: (event) =>
-            new CloneEnv.View(envs: @envs).show()
+            new CloneEnv.View(envs: @envs, pkgs: @pkgs).show()
 
         on_new_click: (event) =>
-            new NewEnv.View(envs: @envs).show()
+            new NewEnv.View(envs: @envs, pkgs: @pkgs).show()
 
         on_refresh_click: (event) =>
             @envs.fetch(reset: true)
