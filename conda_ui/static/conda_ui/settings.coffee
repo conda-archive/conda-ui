@@ -9,6 +9,7 @@ define [
             @ractive = new Ractive({
                 template: '#template-settings-dialog'
             })
+            super()
             config = new api.conda.Config()
             defaults = {
                 allow_softlinks: true,
@@ -18,7 +19,6 @@ define [
                 use_pip: true
             }
             config.getAll().then (config) =>
-                super()
                 data = defaults
                 for own key, value of config
                     data[key] = value
@@ -32,7 +32,7 @@ define [
                 })
 
                 @original = @get_values()
-                @$el.show()
+
                 @show()
 
         title_text: () -> "Settings"
