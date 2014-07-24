@@ -31,6 +31,19 @@ body {
   width: 30%;
 }
 
+.alert-updates {
+  padding: 5px 15px;
+}
+
+.alert-updates strong {
+  display: inline-block;
+  padding: 7px 0;
+}
+
+.alert-updates button.close {
+  padding: 6px;
+}
+
 .contextual-bar {
   position: fixed;
   left: 0;

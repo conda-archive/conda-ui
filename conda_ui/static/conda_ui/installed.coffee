@@ -89,9 +89,9 @@ define [
             @$el.find('.alert').remove()
             if @updates.length is 0 then return
 
-            alert = $('<div class="alert alert-info alert-dismissible" role="alert">
-              <button type="button" class="close" data-dismiss="alert" style="padding: 6px;"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-              <strong style="display: inline-block; padding: 7px 0;">Updates Available</strong> <button type="button" class="btn btn-default pull-right select" data-dismiss="alert">Select Packages</button>
+            alert = $('<div class="alert alert-info alert-dismissible alert-updates" role="alert">
+              <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <strong>Updates Available</strong> <button type="button" class="btn btn-default pull-right select" data-dismiss="alert">Select Packages</button>
             </div>')
             alert.find('.select').click =>
                 @$el.find('input[data-update=update]')
