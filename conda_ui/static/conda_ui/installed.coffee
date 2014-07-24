@@ -46,7 +46,7 @@ define [
                         console.log e.stack
                         continue
                     if newer.length > 0
-                        if name is python
+                        if name is 'python'
                             # Don't tell user to update major versions
                             major = info.version.slice(0, 2)
                             if _.any(newer, (pkg) -> pkg.version.slice(0, 2) is major)
