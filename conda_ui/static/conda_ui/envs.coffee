@@ -21,8 +21,9 @@ define [
                 conda.Env.getEnvs().then (envs) =>
                     promises = []
                     envs.forEach (env) ->
-                        promises.push env.linked()
-                        promises.push env.revisions()
+                        if env.is_default
+                            promises.push env.linked()
+                            promises.push env.revisions()
 
                     Promise.all(promises).then =>
                         options.success envs
@@ -43,7 +44,13 @@ define [
 
         set_active: (name) ->
             @_active = @get_by_name(name)
-            @trigger("activate", @_active)
+            if _.size(@_active.get('installed')) is 0 or @_active.get('history').length is 0
+                @trigger("request", @_active)
+                promises = [@_active.attributes.linked(), @_active.attributes.revisions()]
+                Promise.all(promises).then =>
+                    @trigger("activate", @_active)
+            else
+                @trigger("activate", @_active)
 
     class EnvsView extends Backbone.View
         initialize: (options) ->
