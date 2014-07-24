@@ -3,9 +3,11 @@ define [
     "jquery"
     "backbone"
     "ractive"
+    "conda_ui/api"
     "conda_ui/tab_view"
+    "conda_ui/package_modal"
     "conda_ui/package_actions_bar"
-], (_, $, Backbone, Ractive, TabView, PackageActionsBar) ->
+], (_, $, Backbone, Ractive, api, TabView, PackageModal, PackageActionsBar) ->
 
     class InstalledView extends TabView.View
 
@@ -19,33 +21,37 @@ define [
                 }
             })
             @ractive.on 'select', @on_check
+            @ractive.on 'name-click', @on_name_click
 
             super(options)
 
+            @stopListening @pkgs
+            @listenTo(@pkgs, 'sync', () => @update())
             @listenTo(@envs, 'activate', () => @update())
-            @envs.once 'sync', () => @update()
+            @envs.once('sync', () => @update())
 
         update: () ->
             env = @envs.get_active()
             if not env? then return
-            console.log "Checking for updates"
-            # Have conda figure out what needs updating
-            env.attributes.update({
-                dryRun: true
-                useLocal: true
-                all: true
-            }).then (data) =>
-                if data.success? and data.success
-                    updates = data.actions.LINK
-                    @updates = updates.map (cmd) ->
-                        pkg = cmd.split(" ")[0]
-                        parts = pkg.split(/-/g)
-                        return parts.slice(0, -2).join('-')
-                else
-                    @updates = []
 
-                @render()
-                @notify_updates()
+            @updates = []
+            for own name, info of env.get('installed')
+                record = @pkgs.get_by_name(name)
+                if record
+                    pkgs = record.get('pkgs')
+                    try
+                        newer = _.filter(pkgs, (pkg) -> api.conda.Package.isGreater(info, pkg))
+                    catch e
+                        console.log e.stack
+                        continue
+                    if newer.length > 0
+                        if name is 'python' and info.version.slice(0, 2) is "2."
+                            # Don't tell user to update to Py 3
+                            if _.any(newer, (pkg) -> pkg.version.slice(0, 2) is "2.")
+                                @updates.push(name)
+                        else
+                            @updates.push(name)
+            @render()
 
         render: () ->
             env = @envs.get_active()
@@ -82,7 +88,7 @@ define [
                 @ractive.render @el
 
             @hideLoading()
-            @$el.find('.alert').remove()
+            @notify_updates()
             PackageActionsBar.instance().hide()
 
         notify_updates: () ->

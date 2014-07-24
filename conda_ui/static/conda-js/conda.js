@@ -778,7 +778,10 @@ function factory(api) {
         };
 
         Package.parseVersion = function(version) {
-            var matches = version.match(/(\d)+\.(\d+)((?:\.\d)*)(rc\d+)?/);
+            var matches = version.match(/(\d+)\.(\d+)((?:\.\d+)*)(rc\d+)?/);
+            if (!matches) {
+                throw new CondaError("Package.parseVersion: Cannot parse version " + version);
+            }
             var parts = [parseInt(matches[1], 10), parseInt(matches[2], 10)];
             var extra = matches[3];
             if (typeof extra !== "undefined") {
@@ -807,8 +810,13 @@ function factory(api) {
                 return pkg2.build_number > pkg1.build_number;
             }
 
-            var parts1 = Package.parseVersion(pkg1.version);
-            var parts2 = Package.parseVersion(pkg2.version);
+            try {
+                var parts1 = Package.parseVersion(pkg1.version);
+                var parts2 = Package.parseVersion(pkg2.version);
+            }
+            catch (e) {
+                return pkg2.version > pkg1.version;
+            }
             for (var i = 0, len = Math.max(parts1.parts.length, parts2.parts.length);
                  i < len; i++) {
                 var part1 = parts1.parts[i];

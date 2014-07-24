@@ -7,54 +7,6 @@ define [
     "conda_ui/dialog"
     "conda_ui/plan_modal"
 ], (_, $, api, utils, Modal, Dialog, PlanModal) ->
-    version_regex = /(\d)+\.(\d+)((?:\.\d)*)(rc\d+)?/
-    parse_version = (version) ->
-        matches = version.match version_regex
-        parts = [parseInt(matches[1], 10), parseInt(matches[2], 10)]
-        extra = matches[3]
-        if extra?
-            extra = extra.split(/\./g).slice(1)
-            parts = parts.concat(extra.map((x) -> parseInt(x, 10)))
-        rc = matches[4]
-        if rc?
-            rc = parseInt(rc.slice(2), 10)
-
-        return {
-            parts: parts,
-            rc: if rc? then rc else null
-        }
-
-    # Is ver2 > ver1
-    version_greater = (ver1, ver2) ->
-        ver1 = parse_version ver1
-        ver2 = parse_version ver2
-        for pair in _.zip(ver1.parts, ver2.parts)
-            part1 = pair[0]
-            part2 = pair[1]
-
-            if not part1? and part2?
-                return true
-            if part1? and not part2?
-                return false
-
-            if part2 > part1
-                return true
-            if part2 < part1
-                return false
-
-        if ver1.rc? and not ver2.rc?
-            return true
-        if ver2.rc? and not ver1.rc?
-            return false
-        if ver2.rc? and ver1.rc?
-            return ver2.rc > ver1.rc
-
-    # Is pkg2 newer than pkg2
-    package_greater = (pkg1, pkg2) ->
-        if pkg1.version is pkg2.version
-            return pkg2.build_number > pkg1.build_number
-        return version_greater(pkg1.version, pkg2.version)
-
     class PackageModalView extends Modal.View
 
         initialize: (options) ->
@@ -63,12 +15,13 @@ define [
             @pkgs = options.pkgs
 
             pkgs = @pkg.get 'pkgs'
+            env = @envs.get_active()
 
-            @install = _.all(pkgs, (pkg) -> not pkg.installed)
+            @install = typeof env.get('installed')[@pkg.get('name')] is "undefined"
             @update = false
             if not @install
-                installed = _.findWhere pkgs, { installed: true }
-                @update = _.any(pkgs, (pkg) -> package_greater(installed, pkg))
+                installed = env.get('installed')[@pkg.get('name')]
+                @update = _.any(pkgs, (pkg) -> api.conda.Package.isGreater(installed, pkg))
 
             super(options)
 
@@ -150,6 +103,7 @@ define [
                 if data.message?
                     new Dialog.View({ message: data.message, type: "Message" }).show()
                 else
+                    @hide()
                     new PlanModal.View({
                         pkg: @pkg,
                         envs: @envs,
