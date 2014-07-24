@@ -22,10 +22,12 @@ define [
             @listenTo(@pkgs, 'sync', () => @render())
             @listenTo(@envs, 'activate', () => @render())
             @listenTo(@pkgs, 'filter', () => @render())
-            @listenTo(@envs, 'request', () => @loading.fadeIn(400))
+            @listenTo(@envs, 'request', () => @showLoading())
 
         showLoading: ->
             @loading.slideDown()
+            if @ractive?
+                @ractive.reset({})
 
         hideLoading: ->
             @loading.slideUp()
