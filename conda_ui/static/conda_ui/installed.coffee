@@ -28,6 +28,7 @@ define [
             @stopListening @pkgs
             @listenTo(@pkgs, 'sync', () => @update())
             @listenTo(@envs, 'activate', () => @update())
+            @listenTo(@envs, 'sync', () => @update())
             @envs.once('sync', () => @update())
 
         update: () ->
