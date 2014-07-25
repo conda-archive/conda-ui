@@ -60,6 +60,26 @@
           </table>
         </script>
         <script type="text/html" id="template-settings-dialog">
+          <dl class="dl-horizontal">
+              <dt>Python Version</dt>
+              <dd>{{ info.python_version }}</dd>
+
+              <dt>Platform</dt>
+              <dd>{{ info.platform }}</dd>
+
+              <dt>Conda Version</dt>
+              <dd>{{ info.conda_version }}</dd>
+
+              <dt>.condarc Path</dt>
+              <dd>{{ info.rc_path }}</dd>
+
+              <dt>Root Prefix</dt>
+              <dd>{{ info.root_prefix }} {{ #info.root_writable }}(writable) {{ / }}</dd>
+
+              <dt>Default Prefix</dt>
+              <dd>{{ info.default_prefix }}</dd>
+          </dl>
+          
           <p class="muted"><em>Note: some of these settings apply only to the command-line Conda interface.</em></p>
           <form role="form">
               <div class="form-group">
@@ -182,7 +202,7 @@
                           </a>
                       </h4>
                   </div>
-                  <div id="collapseClean" class="panel-collapse collapse in">
+                  <div id="collapseClean" class="panel-collapse collapse">
                       <div class="panel-body">
                           <p class="muted">Remove unused packages and caches</p>
                           <div class="form-group">

@@ -1,9 +1,10 @@
 define [
     "ractive"
     "bootstrap_tagsinput"
+    "promise"
     "conda_ui/api"
     "conda_ui/modal"
-], (Ractive, $, api, Modal) ->
+], (Ractive, $, Promise, api, Modal) ->
     class SettingsView extends Modal.View
         initialize: (options) ->
             @ractive = new Ractive({
@@ -19,8 +20,12 @@ define [
                 ssl_verify: true,
                 use_pip: true
             }
-            config.getAll().then (config) =>
+            Promise.all([api.conda.info(), config.getAll()]).then (values) =>
+                info = values[0]
+                config = values[1]
+
                 data = defaults
+                data.info = info
                 for own key, value of config
                     data[key] = value
                 @ractive.reset data

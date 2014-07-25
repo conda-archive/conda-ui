@@ -4,7 +4,13 @@ define [
 ], ($, conda) ->
     conda.API_ROOT = '/condajs'
 
+    errored = false
+    error_message = "Could not connect to Conda server. Please restart server and refresh this page."
     $(document).ajaxError () ->
-        alert("Could not connect to Conda server. Please restart server and refresh this page.")
+        if not errored
+            window.alert(error_message)
+            errored = true
+
+            $('#main-tabs').html("<h2>#{error_message}</h2>")
 
     return { conda: conda }
