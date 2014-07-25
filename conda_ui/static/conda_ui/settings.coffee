@@ -9,6 +9,7 @@ define [
             @ractive = new Ractive({
                 template: '#template-settings-dialog'
             })
+
             super()
             config = new api.conda.Config()
             defaults = {
@@ -35,6 +36,8 @@ define [
 
                 @show()
 
+            @ractive.on('clean', () => @on_clean())
+
         title_text: () -> "Settings"
         submit_text: () -> "Save"
 
@@ -42,6 +45,10 @@ define [
             el = $('<div></div>')
             @ractive.render(el)
             return el
+
+        render: () ->
+            super()
+            @$el.addClass("scrollable-modal")
 
         on_submit: (event) =>
             @hide()
@@ -82,5 +89,17 @@ define [
                 list[$el.data('key')] = Array.prototype.slice.call($el.tagsinput('items'))
 
             return { boolean: boolean, list: list }
+
+        on_clean: (event) ->
+            options = {}
+            @$('#collapseClean input[type=checkbox]').each (i, el) ->
+                $el = $(el)
+                if $el.prop('checked')
+                    options[$el.data('flag')] = true
+
+            @$('#collapseClean .panel-body').text('Cleaning...')
+
+            api.conda.clean(options).then =>
+                @$('#collapseClean .panel-body').text('Cleaned!')
 
     return {View: SettingsView}

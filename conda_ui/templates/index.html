@@ -173,6 +173,65 @@
               </div>
             </div>
           </form>
+
+          <div class="panel-group" id="accordion">
+              <div class="panel panel-default">
+                  <div class="panel-heading">
+                      <h4 class="panel-title">
+                          <a data-toggle="collapse" data-parent="#accordion" href="#collapseClean">
+                              Clean Data
+                          </a>
+                      </h4>
+                  </div>
+                  <div id="collapseClean" class="panel-collapse collapse in">
+                      <div class="panel-body">
+                          <p class="muted">Remove unused packages and caches</p>
+                          <div class="form-group">
+                              <div class="col-sm-12">
+                                  <div class="checkbox">
+                                      <label>
+                                          <input id="clean-index-cache" data-flag="indexCache" type="checkbox"> Remove index cache
+                                      </label>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <div class="col-sm-12">
+                                  <div class="checkbox">
+                                      <label>
+                                          <input id="clean-lock" data-flag="lock" type="checkbox"> Remove lock files
+                                      </label>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <div class="col-sm-12">
+                                  <div class="checkbox">
+                                      <label>
+                                          <input id="clean-packages" data-flag="packages" type="checkbox"> Remove unused cached packages <p class="warning">(Warning: this does not check for symlinked packages)</p>
+                                      </label>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <div class="col-sm-12">
+                                  <div class="checkbox">
+                                      <label>
+                                          <input id="clean-tarballs" data-flag="tarballs" type="checkbox"> Remove package tarballs
+                                      </label>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <div class="col-sm-12">
+                                  <button class="btn btn-primary clean" on-click="clean">Clean</button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </script>
         </script>
         {% endraw %}
     </head>
