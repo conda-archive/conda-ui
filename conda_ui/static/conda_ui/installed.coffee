@@ -25,7 +25,6 @@ define [
 
             super(options)
 
-            @stopListening @pkgs
             @listenTo(@pkgs, 'sync', () => @update())
             @listenTo(@envs, 'activate', () => @update())
             @listenTo(@envs, 'sync', () => @update())
@@ -94,8 +93,12 @@ define [
             PackageActionsBar.instance().hide()
 
         notify_updates: () ->
-            @$el.find('.alert').remove()
-            if @updates.length is 0 then return
+            if @updates.length is 0
+                @$el.find('.alert').remove()
+                return
+            if @$el.find('.alert').length
+                # Don't re-show alert
+                return
 
             alert = $('<div class="alert alert-info alert-dismissible alert-updates" role="alert">
               <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>

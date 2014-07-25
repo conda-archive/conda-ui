@@ -1,5 +1,7 @@
 import sys
 import argparse
+import datetime
+import webbrowser
 
 from flask import Flask, Blueprint, url_for
 
@@ -29,12 +31,16 @@ def start_server(args):
     routes = condajs_ws.urls
     routes.append((r".*", tornado.web.FallbackHandler, dict(fallback=wsgi_app)))
     application = tornado.web.Application(routes, debug=args.debug)
-    application.listen(args.port)
+
+    try:
+        application.listen(args.port)
+    except OSError as e:
+        print("There was an error starting the server:")
+        print(e)
+        return
 
     ioloop = tornado.ioloop.IOLoop.instance()
     if not args.debug:
-        import datetime
-        import webbrowser
         delta = datetime.timedelta(seconds=3)
         ioloop.add_timeout(delta, lambda: webbrowser.open_new_tab('http://localhost:%s' % args.port))
     ioloop.start()
