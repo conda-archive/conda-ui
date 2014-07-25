@@ -5,7 +5,8 @@ define [
     "conda_ui/utils"
     "conda_ui/modal"
     "conda_ui/dialog"
-], (_, $, api, utils, Modal, Dialog) ->
+    "conda_ui/windows_warning_modal"
+], (_, $, api, utils, Modal, Dialog, WindowsWarning) ->
 
     class PlanModalView extends Modal.View
 
@@ -122,6 +123,10 @@ define [
             $plan
 
         on_submit: (event) =>
+            WindowsWarning.warn().then =>
+                @doit()
+
+        doit: () =>
             @disable_buttons()
             env = @envs.get_active()
             promise = env.attributes[@action]({

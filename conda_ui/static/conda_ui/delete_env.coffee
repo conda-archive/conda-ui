@@ -17,10 +17,10 @@ define [
 
         submit_type: () -> "danger"
 
-        on_submit: (event) =>
+        doit: () =>
             env = @envs.get_active()
             # Env.attributes is the conda-js Env object
-            progress = env.attributes.removeEnv({ progress: true })
+            progress = env.attributes.removeEnv({ progress: true, forcePscheck: true })
             progress.then @on_env_delete
 
             @add_progress(progress)

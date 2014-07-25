@@ -2,7 +2,8 @@ define [
     "jquery"
     "conda_ui/modal"
     "conda_ui/validator"
-], ($, Modal, $Validator) ->
+    "conda_ui/windows_warning_modal"
+], ($, Modal, $Validator, WindowsWarning) ->
 
     class EnvModalView extends Modal.View
 
@@ -60,9 +61,13 @@ define [
         update_progress: () ->
 
         on_submit: (event) =>
-            @$form.submit()
+            if @$form?
+                @$form.submit()
+            else
+                @on_form_submit()
 
         on_form_submit: (event) =>
-            @doit(@$input.val())
+            WindowsWarning.warn().then =>
+                @doit(@$input?.val())
 
     return {View: EnvModalView}

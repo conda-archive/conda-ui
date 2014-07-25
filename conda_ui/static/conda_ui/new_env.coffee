@@ -42,6 +42,7 @@ define [
                 name: new_name
                 packages: [python]
                 progress: true
+                forcePscheck: true
             })
             progress.then @on_env_new(new_name)
 

@@ -83,7 +83,8 @@ define [
             @action = "update"
             env.attributes[@action]({
                 dryRun: true,
-                packages: [@pkg.get('name')]
+                packages: [@pkg.get('name')],
+                forcePscheck: true
             }).then @on_plan
 
         on_submit: (event) =>

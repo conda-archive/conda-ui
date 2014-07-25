@@ -14,6 +14,7 @@ define [
             progress = @envs.get_active().attributes.clone({
                 name: new_name
                 progress: true
+                forcePscheck: true
             })
             progress.then @on_env_clone(new_name)
 
