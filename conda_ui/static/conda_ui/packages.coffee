@@ -93,7 +93,7 @@ define [
             $('#tab-pkgs').find('.badge').text(data.length)
             if not @ractive.el?
                 @ractive.render @el
-            @hideLoading()
+            @hide_loading()
 
         on_name_click: (event) =>
             name = $(event.node).data("package-name")

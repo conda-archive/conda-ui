@@ -6,7 +6,7 @@ body {
   cursor: pointer;
 }
 
-.packages-modal .modal-body {
+.scrollable-modal .modal-body {
   max-height: 420px;
   overflow-y: auto;
 }
@@ -29,6 +29,10 @@ body {
 
 .col-plan-build {
   width: 30%;
+}
+
+#installed tr td:nth-child(2), #pkgs tr td:nth-child(2) {
+  cursor: pointer;
 }
 
 .alert-updates {

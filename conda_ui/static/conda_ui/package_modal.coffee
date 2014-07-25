@@ -75,7 +75,7 @@ define [
 
         render: () ->
             super()
-            @$el.addClass("packages-modal")
+            @$el.addClass("scrollable-modal")
 
         on_update: (event) =>
             @disable_buttons()

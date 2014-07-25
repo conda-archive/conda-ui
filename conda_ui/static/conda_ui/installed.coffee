@@ -89,7 +89,7 @@ define [
             if not @ractive.el?
                 @ractive.render @el
 
-            @hideLoading()
+            @hide_loading()
             @notify_updates()
             PackageActionsBar.instance().hide()
 
@@ -119,5 +119,9 @@ define [
             checked = $(event.node).prop('checked')
             PackageActionsBar.instance().setMode('installed')
             PackageActionsBar.instance().on_check(pkg, checked)
+
+        show_loading: ->
+            super()
+            @$el.find('.alert').remove()
 
     return {View: InstalledView}

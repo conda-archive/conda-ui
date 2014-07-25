@@ -114,10 +114,10 @@ define [
 
                 $plan.append([$description, $table])
 
-            @$progress = $('<div class="progress-bar progress-bar-striped active" role="progressbar">')
+            @$progress = $('<div class="progress-bar" role="progressbar">')
             @$progress.css 'width', '0%'
             @$progress.hide()
-            $plan.append $('<div class="progress">').append @$progress
+            $plan.append $('<div class="progress progress-striped active">').append @$progress
 
             $plan
 

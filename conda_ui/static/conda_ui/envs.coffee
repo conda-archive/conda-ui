@@ -87,7 +87,7 @@ define [
             @$select.change(@on_change)
 
             @$delete_btn = @button('Delete', 'trash-o').click(@on_delete_click).addClass('btn-danger')
-            @$clone_btn = @button('Clone', 'copy').click(@on_clone_click).addClass('btn-info')
+            @$clone_btn = @button('Clone', 'copy').click(@on_clone_click)
             @$new_btn = @button('New', 'plus-square').click(@on_new_click).addClass('btn-success')
             @$refresh_btn = @button('Refresh', 'refresh')
                 .click(@on_refresh_click)

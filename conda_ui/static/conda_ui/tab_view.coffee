@@ -22,14 +22,14 @@ define [
             @listenTo(@pkgs, 'sync', () => @render())
             @listenTo(@envs, 'activate', () => @render())
             @listenTo(@pkgs, 'filter', () => @render())
-            @listenTo(@envs, 'request', () => @showLoading())
+            @listenTo(@envs, 'request', () => @show_loading())
 
-        showLoading: ->
+        show_loading: ->
             @loading.slideDown()
             if @ractive?
                 @ractive.reset({})
 
-        hideLoading: ->
+        hide_loading: ->
             @loading.slideUp()
 
     return { View: TabView }
