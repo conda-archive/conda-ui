@@ -11,7 +11,10 @@ define [
                 template: '#template-settings-dialog'
             })
 
-            super()
+            @envs = options.envs
+            @pkgs = options.pkgs
+
+            super(options)
             config = new api.conda.Config()
             defaults = {
                 allow_softlinks: true,
@@ -82,6 +85,10 @@ define [
                     config.add(key, val)
                 for val in removed
                     config.remove(key, val)
+
+                if added.length or removed.length and key is "channels"
+                    @envs.fetch(reset: true)
+                    @pkgs.fetch(reset: true)
 
         get_values: ->
             boolean = {}

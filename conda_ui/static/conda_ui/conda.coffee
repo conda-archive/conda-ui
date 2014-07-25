@@ -68,4 +68,4 @@ define [
         new History.View({el: $('#history'), envs: envs, pkgs: pkgs})
 
         $('#settings').click (event) =>
-            new Settings.View()
+            new Settings.View({ envs: envs, pkgs: pkgs })
