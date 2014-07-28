@@ -67,6 +67,31 @@ def api_condajs(subcommand):
 import sockjs.tornado
 import tornado.iostream
 import subprocess
+import threading
+
+class CondaSubprocessWorker(threading.Thread):
+    def __init__(self, cmdList, send, *args, **kwargs):
+        super(CondaSubprocessWorker, self).__init__(*args, **kwargs)
+        self.cmdList = cmdList
+        self.send = send
+
+    def run(self):
+        p = subprocess.Popen(self.cmdList, stdout=subprocess.PIPE)
+        f = p.stdout
+        while True:
+            line = f.readline()
+
+            if line[0] in (0, '\0'):
+                line = line[1:]
+            data = line.decode('utf-8')
+            try:
+                data = json.loads(data)
+                self.send({ 'progress': data })
+            except ValueError:
+                rest = data + f.read().decode('utf-8')
+                self.send({ 'finished': json.loads(rest) })
+                break
+
 class CondaJsWebSocketRouter(sockjs.tornado.SockJSConnection):
     def on_message(self, message):
         message = json.loads(message)
@@ -74,32 +99,10 @@ class CondaJsWebSocketRouter(sockjs.tornado.SockJSConnection):
         flags = message['flags']
         positional = message['positional']
 
-        # http://stackoverflow.com/a/14281904/262727
-        # Use subprocess here to take advantage of Tornado's async process
-        # routines.
+        # Use a thread here - Tornado's nonblocking pipe is not portable
         cmdList = parse(subcommand, flags, positional)
-        self.subprocess = subprocess.Popen(cmdList, stdout=subprocess.PIPE)
-        self.stream = tornado.iostream.PipeIOStream(self.subprocess.stdout.fileno())
-        self.stream.read_until(b'\n', self.on_newline)
+        self.worker = CondaSubprocessWorker(cmdList, self.process)
+        self.worker.start()
 
-    def on_newline(self, data):
-        # We don't know if there's going to be more progressbars or if
-        # everything is done. Thus, we read to a newline, try to parse it as
-        # JSON - the progressbar formatter will put all its JSON on one
-        # line, while the --json formatter will not. If it parses, continue
-        # looking for progressbars, else read everything else and send the
-        # result.
-        data = data.decode('utf-8')
-        try:
-            data = json.loads(data)
-            self.send(json.dumps({ 'progress': data }))
-            self.stream.read_bytes(
-                1,
-                lambda x: self.stream.read_until(b'\n', self.on_newline)
-            ) # get rid of the null byte
-        except ValueError:
-            self.buf = data
-            self.stream.read_until_close(self.on_close)
-
-    def on_close(self, data):
-        self.send(json.dumps({ 'finished': json.loads(self.buf + data.decode('utf-8')) }))
+    def process(self, data):
+        self.send(json.dumps(data))
