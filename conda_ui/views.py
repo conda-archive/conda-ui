@@ -65,7 +65,6 @@ def api_condajs(subcommand):
     return p.communicate()[0]
 
 import sockjs.tornado
-import tornado.iostream
 import subprocess
 import threading
 
