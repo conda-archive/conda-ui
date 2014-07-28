@@ -81,6 +81,7 @@
           </dl>
           
           <p class="muted"><em>Note: some of these settings apply only to the command-line Conda interface.</em></p>
+          <p class="alert alert-warning">Changing settings here uses <tt>--force</tt>, which will remove any comments or structure in the configuration file you may have added by hand.</p>
           <form role="form">
               <div class="form-group">
                 <label for="setting-channels">Channels</label>
@@ -227,8 +228,9 @@
                               <div class="col-sm-12">
                                   <div class="checkbox">
                                       <label>
-                                          <input id="clean-packages" data-flag="packages" type="checkbox"> Remove unused cached packages <p class="warning">(Warning: this does not check for symlinked packages)</p>
+                                          <input id="clean-packages" data-flag="packages" type="checkbox"> Remove unused cached packages
                                       </label>
+                                      <span class="help-block">(Warning: this does not check for symlinked packages)</span>
                                   </div>
                               </div>
                           </div>
