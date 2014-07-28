@@ -1,8 +1,9 @@
 define [
     "jquery"
     "conda_ui/modal"
+    "conda_ui/utils"
     "promise"
-], ($, Modal, Promise) ->
+], ($, Modal, utils, Promise) ->
 
     class WindowsWarningView extends Modal.View
         initialize: (options) ->
@@ -20,7 +21,7 @@ define [
             @fulfill()
 
         @warn_pscheck: () ->
-            if /windows/.test(navigator.userAgent.toLowerCase())
+            if utils.on_windows()
                 view = new WindowsWarningView()
                 view.show()
                 return view.promise

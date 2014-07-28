@@ -21,7 +21,10 @@ define [
             @update = false
             if not @install
                 installed = env.get('installed')[@pkg.get('name')]
-                @update = _.any(pkgs, (pkg) -> api.conda.Package.isGreater(installed, pkg))
+                if utils.on_windows() and utils.is_windows_ignored(@pkg.get('name'))
+                    @update = false
+                else
+                    @update = _.any(pkgs, (pkg) -> api.conda.Package.isGreater(installed, pkg))
 
             super(options)
 

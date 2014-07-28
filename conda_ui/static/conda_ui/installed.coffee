@@ -7,7 +7,8 @@ define [
     "conda_ui/tab_view"
     "conda_ui/package_modal"
     "conda_ui/package_actions_bar"
-], (_, $, Backbone, Ractive, api, TabView, PackageModal, PackageActionsBar) ->
+    "conda_ui/utils"
+], (_, $, Backbone, Ractive, api, TabView, PackageModal, PackageActionsBar, utils) ->
 
     class InstalledView extends TabView.View
 
@@ -37,6 +38,12 @@ define [
             @updates = []
             for own name, info of env.get('installed')
                 record = @pkgs.get_by_name(name)
+
+                if utils.on_windows()
+                    if utils.is_windows_ignored(name)
+                        # Can't update these on Windows
+                        continue
+
                 if record
                     pkgs = record.get('pkgs')
                     try
