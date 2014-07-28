@@ -25,9 +25,18 @@ define [
             $form_group = $('<div class="form-group">').append([$label, @$python, $help])
             @$form.append($form_group)
 
+            versions = []
             for pkg in python.get('pkgs')
-                $option = $('<option></option>').text("#{pkg.version}-#{pkg.build}")
-                if pkg.version is installed.version and pkg.build is installed.build
+                version = api.conda.Package.parseVersion(pkg.version)
+                major_version = version.parts.slice(0, 2).join('.')
+                if versions.indexOf(major_version) is -1
+                    versions.push(major_version)
+
+            installed_major = api.conda.Package.parseVersion(installed.version)
+                .parts.slice(0, 2).join('.')
+            for version in versions
+                $option = $('<option></option>').text(version)
+                if version is installed_major
                     $option.prop('selected', true)
                 @$python.append($option)
 
