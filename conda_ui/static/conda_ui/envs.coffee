@@ -20,6 +20,9 @@ define [
                 @trigger 'request'
                 conda.Env.getEnvs().then (envs) =>
                     promises = []
+                    envs = envs.filter(
+                        ((env) -> ['_build', '_test', '_pipbuild_'].indexOf(env.name) is -1),
+                        envs)
                     envs.forEach (env) ->
                         if env.is_default
                             promises.push env.linked()
