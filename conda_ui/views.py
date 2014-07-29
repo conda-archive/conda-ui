@@ -9,8 +9,6 @@ from flask import render_template, jsonify, redirect, abort, request, url_for
 
 from . import blueprint
 
-import conda.cli as cli
-
 @blueprint.route('/')
 def index_view():
     return render_template('index.html')

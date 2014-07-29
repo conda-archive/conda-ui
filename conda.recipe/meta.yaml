@@ -15,7 +15,6 @@ requirements:
   run:
     - python
     - flask
-    - conda
     - tornado
     - sockjs-tornado
 
@@ -24,6 +23,7 @@ app:
   icon: logo.png
   summary: Conda UI - Graphical Interface for Conda
   type: web
+  own_environment: true
 
 about:
   home: https://github.com/ContinuumIO/conda-ui
