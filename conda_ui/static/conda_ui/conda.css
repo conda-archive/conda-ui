@@ -2,7 +2,7 @@ body {
   padding: 70px 0;
 }
 
-.package-name {
+.package-name, .revision-number {
   cursor: pointer;
 }
 

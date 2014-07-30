@@ -12,6 +12,7 @@ define [
 
         initialize: (options) ->
             @pkg = options.pkg
+            @revision = options.revision
             @envs = options.envs
             @pkgs = options.pkgs
             @actions = options.actions
@@ -20,15 +21,19 @@ define [
                 when "update" then "Update"
                 when "install" then "Installation"
                 when "remove" then "Uninstallation"
+                when "revert" then "Revert"
             @action_participle = switch @action
                 when "update" then "updated"
                 when "install" then "installed"
                 when "remove" then "uninstalled"
+                when "revert" then "reverted"
             super(options)
 
         title_text: () ->
             if _.isArray @pkg
                 text = @pkg.join(', ')
+            else if @action is 'revert'
+                text = "revision #{@revision}"
             else
                 text = @pkg.get('name')
 
@@ -129,10 +134,17 @@ define [
         doit: () =>
             @disable_buttons()
             env = @envs.get_active()
-            promise = env.attributes[@action]({
-                packages: if _.isArray @pkg then @pkg else [@pkg.get('name')]
-                progress: true
-            })
+
+            if @action is 'revert'
+                promise = env.attributes.install({
+                    revision: @revision
+                    progress: true
+                })
+            else
+                promise = env.attributes[@action]({
+                    packages: if _.isArray @pkg then @pkg else [@pkg.get('name')]
+                    progress: true
+                })
             promise.progress (info) =>
                 @$progress.show()
                 progress = 100 * (info.progress / info.maxval)
@@ -153,6 +165,8 @@ define [
                 @envs.fetch(reset: true)
                 if _.isArray @pkg
                     name = @pkg.join(', ') + (if @pkg.length is 1 then ' was' else ' were')
+                else if @action is 'revert'
+                    name = @revision
                 else
                     name = @pkg.get('name') + ' was'
                 new Dialog.View({type: "info", message: "#{name} successfully #{action_participle}"}).show()

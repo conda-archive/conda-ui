@@ -35,7 +35,7 @@ def parse(subcommand, flags, positional):
             if isinstance(value, (list, tuple)):
                 cmdList.extend(map(str, value))
             elif value is not True:
-                cmdList.append(value)
+                cmdList.append(str(value))
 
     if isinstance(positional, str):
         cmdList.append(positional)

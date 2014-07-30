@@ -6,7 +6,10 @@ import subprocess
 from setuptools import setup, find_packages
 
 def build():
-    retcode = subprocess.call(["sh", "-ex", "compile"])
+    if sys.platform != 'win32':
+        retcode = subprocess.call(["sh", "-ex", "compile"])
+    else:
+        retcode = subprocess.call(["coffee", "-c","conda_ui/static/conda_ui/*.coffee"])
 
     if retcode != 0:
         raise RuntimeError("compilation failed")
