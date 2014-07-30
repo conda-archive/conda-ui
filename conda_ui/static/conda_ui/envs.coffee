@@ -15,14 +15,16 @@ define [
     class Envs extends Backbone.Collection
         model: Env
 
+        filterfunc: (env) ->
+            (['_build', '_test', '_pipbuild_'].indexOf(env.name) is -1 and
+             env.name.slice(0, 20) isnt "_app_own_environment")
+
         sync: (method, model, options) ->
             if method is "read"
                 @trigger 'request'
                 conda.Env.getEnvs().then (envs) =>
                     promises = []
-                    envs = envs.filter(
-                        ((env) -> ['_build', '_test', '_pipbuild_'].indexOf(env.name) is -1),
-                        envs)
+                    envs = envs.filter(@filterfunc, envs)
                     envs.forEach (env) ->
                         if env.is_default
                             promises.push env.linked()
