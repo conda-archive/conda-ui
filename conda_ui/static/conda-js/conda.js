@@ -466,8 +466,7 @@ function factory(api) {
             this.message = message;
         }
 
-        CondaError.prototype = new Error;
-        CondaError.prototype.constructor = CondaError;
+        CondaError.prototype.__proto__ = new Error;
 
         CondaError.prototype.toString = function() {
             return "CondaError: " + this.message;
@@ -524,8 +523,8 @@ function factory(api) {
                 packages: []
             });
 
-            if (options.packages.length === 0 && typeof options.revision === "undefined") {
-                throw new CondaError("Env.install: must specify at least one package, or a revision");
+            if (options.packages.length === 0) {
+                throw new CondaError("Env.install: must specify at least one package");
             }
 
             var packages = options.packages;

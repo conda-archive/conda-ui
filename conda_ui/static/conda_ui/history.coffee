@@ -2,11 +2,9 @@ define [
     "underscore"
     "jquery"
     "backbone"
-    "conda_ui/dialog"
-    "conda_ui/plan_modal"
     "conda_ui/tab_view"
     "condajs"
-], (_, $, Backbone, Dialog, PlanModal, TabView, conda) ->
+], (_, $, Backbone, TabView, conda) ->
 
     class HistoryView extends TabView.View
 
@@ -17,7 +15,6 @@ define [
                     history: []
                 }
             })
-            @ractive.on 'revert', @revert
             super(options)
 
         render: () ->
@@ -80,26 +77,5 @@ define [
                 @loading.hide()
             else
                 @$el.html("History was not recorded for this environment.")
-
-        revert: (event) =>
-            revision = event.context.revision
-            @envs.get_active().attributes.install({
-                dryRun: true,
-                revision: revision
-            }).then (data) =>
-                if data.success? and data.success
-                    if data.message?
-                        new Dialog.View({ message: data.message, type: "Message" }).show()
-                    else
-                        @hide()
-                        new PlanModal.View({
-                            envs: @envs,
-                            pkgs: @pkgs,
-                            actions: data.actions,
-                            action: 'revert',
-                            revision: revision
-                        }).show()
-                else
-                    new Dialog.View({ message: data.error, type: "Error" }).show()
 
     return {View: HistoryView}
