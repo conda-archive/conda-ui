@@ -34,8 +34,8 @@ define [
 
         submit_text: () ->
             switch
-                when @install then "Install"
-                else "Uninstall"
+                when @install then "Install Latest"
+                else "Uninstall Installed"
 
         submit_type: () ->
             switch
@@ -43,10 +43,11 @@ define [
                 else "danger"
 
         render_body: () ->
-            headers = ['Name', 'Version', 'Build', 'Size', 'Channel', 'Features']
+            headers = ['', 'Name', 'Version', 'Build', 'Size', 'Channel', 'Features']
             $headers = $('<tr>').html($('<th>').text(text) for text in headers)
 
             $rows = for pkg in @pkg.get('pkgs')
+                $select = $("<input type=\"radio\" name=\"#{pkg.name}\" />")
                 $name = $('<td>').text(pkg.name)
                 $version = $('<td>').text(pkg.version)
                 $build = $('<td>').text(pkg.build)
@@ -61,7 +62,17 @@ define [
                 info = env?.get('installed')[pkg.name]
                 style = if info?.version == pkg.version and info?.build == pkg.build then "success" else ""
 
-                $columns = [$name, $version, $build, $size, $channel, $features]
+                if style is "success"
+                    $select = $('<td>')
+                else
+                    $select.change =>
+                        @$downgrade.fadeIn()
+                    $select.data
+                        version: pkg.version
+                        build: pkg.build
+                    $select = $('<td>').append($select)
+
+                $columns = [$select, $name, $version, $build, $size, $channel, $features]
                 $('<tr>').html($columns).addClass(style)
 
             $table = $('<table class="table table-bordered table-striped">')
@@ -71,10 +82,12 @@ define [
 
         render_footer: () ->
             $footer = super()
+            @$downgrade = $('<button type="submit" class="btn"></button>')
+                .addClass("btn-warning").text("Install Selected").click(@on_downgrade).hide()
             if @update
                 $update = $('<button type="submit" class="btn"></button>')
-                    .addClass("btn-info").text("Update").click(@on_update)
-            [$footer[0], $update, $footer[1]]
+                    .addClass("btn-info").text("Update Installed").click(@on_update)
+            [@$downgrade, $update, $footer[0], $footer[1]]
 
         render: () ->
             super()
@@ -99,6 +112,21 @@ define [
             env.attributes[@action]({
                 dryRun: true,
                 packages: [@pkg.get('name')]
+                forcePscheck: true
+            }).then @on_plan
+
+        on_downgrade: (event) =>
+            @disable_buttons()
+            env = @envs.get_active()
+            @action = "install"
+            radio = @$('input[type=radio]:checked')
+            version = radio.data('version')
+            build = radio.data('build')
+            @pkg = ["#{@pkg.get('name')}=#{version}=#{build}"]
+            env.attributes[@action]({
+                dryRun: true,
+                packages: @pkg
+                forcePscheck: true
             }).then @on_plan
 
         on_plan: (data) =>
