@@ -49,7 +49,7 @@
             <tbody>
               {{#history}}
               <tr class="{{ style }}">
-                <td>{{revision}}</td>
+                <td class="revision-number" on-click="revert">{{revision}}</td>
                 <td>{{date}}</td>
                 <td><i class="fa fa-{{icon}}"></i>&nbsp;{{name}}</td>
                 <td>{{& old_version}}</td>
