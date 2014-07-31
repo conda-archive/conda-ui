@@ -3,10 +3,11 @@ define [
     "jquery"
     "backbone"
     "conda_ui/dialog"
+    "conda_ui/loading_modal"
     "conda_ui/plan_modal"
     "conda_ui/tab_view"
     "condajs"
-], (_, $, Backbone, Dialog, PlanModal, TabView, conda) ->
+], (_, $, Backbone, Dialog, LoadingModal, PlanModal, TabView, conda) ->
 
     class HistoryView extends TabView.View
 
@@ -83,15 +84,18 @@ define [
 
         revert: (event) =>
             revision = event.context.revision
-            @envs.get_active().attributes.install({
+            loading = new LoadingModal.View({ title: "Generating plan..." })
+            loading.show()
+            promise = @envs.get_active().attributes.install({
                 dryRun: true,
                 revision: revision
-            }).then (data) =>
+            })
+            promise.then (data) =>
+                loading.hide()
                 if data.success? and data.success
                     if data.message?
                         new Dialog.View({ message: data.message, type: "Message" }).show()
                     else
-                        @hide()
                         new PlanModal.View({
                             envs: @envs,
                             pkgs: @pkgs,

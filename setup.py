@@ -9,6 +9,7 @@ def build():
     if sys.platform != 'win32':
         retcode = subprocess.call(["sh", "-ex", "compile"])
     else:
+        # TODO get this working on windows
         retcode = 0
 
     if retcode != 0:
