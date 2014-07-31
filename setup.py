@@ -6,7 +6,10 @@ import subprocess
 from setuptools import setup, find_packages
 
 def build():
-    retcode = subprocess.call(["sh", "-ex", "compile"])
+    if sys.platform != 'win32':
+        retcode = subprocess.call(["sh", "-ex", "compile"])
+    else:
+        retcode = 0
 
     if retcode != 0:
         raise RuntimeError("compilation failed")

@@ -282,7 +282,8 @@ if ((typeof module === 'object' && typeof define !== 'function') || (window && w
     }
 
     var __spawn = function(cmdList) {
-        var conda = ChildProcess.spawn('conda', cmdList, {});
+        console.log("RUNNING", cmdList)
+        var conda = ChildProcess.spawn('conda', cmdList, { env: process.env });
         conda.stdout.setEncoding('utf8');
         return conda;
     };
@@ -668,7 +669,7 @@ function factory(api) {
 
         Env.getEnvs = function() {
             return info().then(function(info) {
-                var envs = [new Env('root', info.default_prefix)];
+                var envs = [new Env('root', info.root_prefix)];
 
                 var prefixes = info.envs;
                 for (var i = 0; i < prefixes.length; i++) {
@@ -688,8 +689,8 @@ function factory(api) {
 
         Env.getRoot = function() {
             return info().then(function(info) {
-                var root = new Env('root', info.default_prefix);
-                root.isDefault = true;
+                var root = new Env('root', info.root_prefix);
+                root.isDefault = info.root_prefix == info.default_prefix;
                 root.isRoot = true;
 
                 return root;
@@ -778,8 +779,14 @@ function factory(api) {
             };
         };
 
+        /**
+           Parse a version string
+
+           Matches 2.1, 2.1.3, 2.1.3a, 2.1.3a2, 2.1.4rc1, 2.1.5.2, ...
+           Note: 2.1.3a == 2.1.3a0
+         */
         Package.parseVersion = function(version) {
-            var matches = version.match(/(\d+)\.(\d+)((?:\.\d+)*)(rc\d+)?/);
+            var matches = version.match(/^(\d+)\.(\d+)((?:\.\d+)*)([a-zA-Z]+(?:\d+)?)?$/);
             if (!matches) {
                 throw new CondaError("Package.parseVersion: Cannot parse version " + version);
             }
@@ -791,16 +798,21 @@ function factory(api) {
                     parts.push(parseInt(e, 10));
                 });
             }
-            var rc = matches[4];
-            if (typeof rc !== "undefined") {
-                rc = parseInt(rc.slice(2), 10);
-            }
-            else {
-                rc = null
+            var suffixMatch = matches[4];
+            var suffix = null;
+            var suffixNumber = null;
+            if (typeof suffixMatch !== "undefined") {
+                var suffixParts = suffixMatch.split(/(\d+)/);
+                suffix = suffixParts[0];
+                suffixNumber = 0;
+                if (suffixParts.length > 1) {
+                    suffixNumber = parseInt(suffixParts[1], 10);
+                }
             }
             return {
                 parts: parts,
-                rc: rc
+                suffix: suffix,
+                suffixNumber: suffixNumber
             };
         };
 
@@ -840,14 +852,18 @@ function factory(api) {
                 }
             }
 
-            if (parts1.rc !== null && parts2.rc === null) {
+            if (parts1.suffix !== null && parts2.suffix === null) {
                 return true;
             }
-            else if (parts1.rc === null && parts2.rc !== null) {
+            else if (parts1.suffix === null && parts2.suffix !== null) {
                 return false;
             }
+            else if (parts1.suffix !== null && parts2.suffix !== null &&
+                     parts1.suffix === parts2.suffix) {
+                return parts2.suffixNumber > parts1.suffixNumber;
+            }
             else {
-                return parts2.rc > parts1.rc;
+                return parts2.suffix > parts1.suffix;
             }
         };
 
@@ -1050,7 +1066,9 @@ function factory(api) {
         });
 
         if (_search_cache === null || options.reload) {
-            _search_cache = search({ useIndexCache: !options.reload, unknown: true });
+            delete options.reload;
+            options.useIndexCache = !options.reload;
+            _search_cache = search(options);
         }
 
         return _search_cache;
