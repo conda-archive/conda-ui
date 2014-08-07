@@ -3,14 +3,11 @@ from __future__ import print_function
 import sys
 import subprocess
 
+from os.path import join
 from setuptools import setup, find_packages
 
 def build():
-    if sys.platform != 'win32':
-        retcode = subprocess.call(["sh", "-ex", "compile"])
-    else:
-        # TODO get this working on windows
-        retcode = 0
+    retcode = subprocess.call(["coffee", "--no-header", "-c", join("conda_ui", "static", "conda_ui")])
 
     if retcode != 0:
         raise RuntimeError("compilation failed")
@@ -19,7 +16,7 @@ build()
 
 setup(
     name='conda-ui',
-    version='0.1.0',
+    version='0.1.1',
     author='Continuum Analytics',
     author_email='conda@continuum.io',
     description='Web user interface for Conda',
