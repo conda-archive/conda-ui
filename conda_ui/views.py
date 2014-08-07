@@ -5,6 +5,8 @@ import sys
 import json
 from io import StringIO
 from os.path import isfile
+
+from six import string_types
 from flask import render_template, jsonify, redirect, abort, request, url_for
 
 from . import blueprint
@@ -37,7 +39,7 @@ def parse(subcommand, flags, positional):
             elif value is not True:
                 cmdList.append(str(value))
 
-    if isinstance(positional, str):
+    if isinstance(positional, string_types):
         cmdList.append(positional)
     else:
         cmdList.extend(positional)
