@@ -1,6 +1,5 @@
 import sys
 import argparse
-import datetime
 import webbrowser
 
 from flask import Flask, Blueprint, url_for
@@ -41,8 +40,8 @@ def start_server(args):
 
     ioloop = tornado.ioloop.IOLoop.instance()
     if not args.debug:
-        delta = datetime.timedelta(seconds=3)
-        ioloop.add_timeout(delta, lambda: webbrowser.open_new_tab('http://localhost:%s' % args.port))
+        callback = lambda: webbrowser.open_new_tab('http://localhost:%s' % args.port)
+        ioloop.add_callback(callback)
     ioloop.start()
 
 
