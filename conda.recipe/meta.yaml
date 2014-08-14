@@ -11,6 +11,8 @@ requirements:
   build:
     - python
     - setuptools
+    - nodejs
+    - coffee-script
 
   run:
     - python
