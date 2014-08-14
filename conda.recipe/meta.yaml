@@ -21,10 +21,8 @@ requirements:
 
 app:
   entry: conda-ui
-  icon: logo.png
   summary: Conda UI - Graphical Interface for Conda
   type: web
-  own_environment: true
 
 about:
   home: https://github.com/ContinuumIO/conda-ui
