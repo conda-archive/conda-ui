@@ -1,6 +1,6 @@
 package:
   name: conda-ui
-  version: 0.1.0
+  version: 0.1.1
 
 build:
   number: {{ environ.get('BINSTAR_BUILD', 1) }}
@@ -14,8 +14,17 @@ requirements:
 
   run:
     - python
+    - six
     - flask
-    - conda
+    - tornado
+    - sockjs-tornado
+
+app:
+  entry: conda-ui
+  icon: logo.png
+  summary: Conda UI - Graphical Interface for Conda
+  type: web
+  own_environment: true
 
 about:
   home: https://github.com/ContinuumIO/conda-ui

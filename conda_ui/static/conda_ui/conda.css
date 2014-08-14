@@ -1,0 +1,74 @@
+body {
+  padding: 70px 0;
+}
+
+.package-name, .revision-number {
+  cursor: pointer;
+}
+
+.scrollable-modal .modal-body {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.modal {
+  overflow: auto;
+}
+
+#main-tabs > .tab-pane {
+  padding: 1em 1em 0 1em;
+}
+
+.col-plan-name {
+  width: 40%;
+}
+
+.col-plan-version {
+  width: 30%;
+}
+
+.col-plan-build {
+  width: 30%;
+}
+
+#installed tr td:nth-child(2), #pkgs tr td:nth-child(2) {
+  cursor: pointer;
+}
+
+.alert-updates {
+  padding: 5px 15px;
+}
+
+.alert-updates strong {
+  display: inline-block;
+  padding: 7px 0;
+}
+
+.alert-updates button.close {
+  padding: 6px;
+}
+
+.contextual-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0 20px;
+  border-radius: 4px 4px 0 0;
+  display: none;
+  border: 1px solid #e7e7e7;
+  background-color: #f8f8f8;
+}
+
+.checkbox .help-block {
+  margin-bottom: 0;
+}
+
+.bootstrap-tagsinput {
+  display: block;
+  width: 100%;
+}
+
+.bootstrap-tagsinput .tag {
+  font-size: 100%;
+}

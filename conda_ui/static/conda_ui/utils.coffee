@@ -14,4 +14,14 @@ define [
         g = m/1024
         return sprintf.sprintf('%.2f GB', g)
 
-    return {human_readable: human_readable}
+    on_windows = ->
+        /windows/.test(navigator.userAgent.toLowerCase())
+
+    is_windows_ignored = (name) ->
+        name is 'python' or name is 'psutil' or name is 'pycosat'
+
+    return {
+        human_readable: human_readable,
+        on_windows: on_windows,
+        is_windows_ignored: is_windows_ignored
+    }

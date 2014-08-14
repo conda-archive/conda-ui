@@ -2,17 +2,35 @@ define [
     "underscore"
     "jquery"
     "backbone"
+    "ractive"
+    "conda_ui/tab_view"
     "conda_ui/package_modal"
+    "conda_ui/package_actions_bar"
 
-], (_, $, Backbone, PackageModal) ->
+], (_, $, Backbone, Ractive, TabView, PackageModal, PackageActionsBar) ->
 
     class Package extends Backbone.Model
         defaults: -> {}
 
     class Packages extends Backbone.Collection
         model: Package
-        url: () -> "/api/pkgs"
-        parse: (response) -> response.groups
+        firstLoad: true
+
+        sync: (method, model, options) ->
+            if method is "read"
+                conda.index({ reload: not @firstLoad }).then (data) ->
+                    restructured = for own key, pkgs of data
+                        pkgs = for pkg in pkgs
+                            pkg.dist = pkg.fn.slice(0, -8)
+                            pkg
+                        {
+                            name: key
+                            pkgs: pkgs
+                        }
+                    options.success restructured
+                @firstLoad = false
+            else
+                console.log method
 
         get_by_name: (name) ->
             _.find(@models, (pkg) -> pkg.get('name') == name)
@@ -34,55 +52,58 @@ define [
         do_filter: (name) ->
             @_filter? and @_filter.length != 0 and name.indexOf(@_filter) == -1
 
-    class PackagesView extends Backbone.View
+    class PackagesView extends TabView.View
 
         initialize: (options) ->
+            @ractive = new Ractive({
+                template: '#template-package-table',
+                data: {
+                    pkgs: []
+                }
+            })
+            @ractive.on 'select', @on_check
+            @ractive.on 'name-click', @on_name_click
             super(options)
-            @envs = options.envs
-            @pkgs = options.pkgs
-            @listenTo(@envs, 'all', () => @render())
-            @listenTo(@pkgs, 'all', () => @render())
-            @render()
 
         render: () ->
             env = @envs.get_active()
             if not env? then return
 
-            headers = ['Status', 'Package Name', 'Installed Version', 'Latest Version']
-            $headers = $('<tr>').html($('<th>').text(text) for text in headers)
-
             installed = env.get('installed')
 
-            $rows = for pkg in @pkgs.models
+            data = for pkg in @pkgs.models
                 name = pkg.get('name')
                 pkgs = pkg.get('pkgs')
 
                 if @pkgs.do_filter(name)
                     continue
+                if installed[name]?.version
+                    continue
 
-                latest_version = pkgs[pkgs.length-1].version
-                installed_version = installed[name]?.version
+                pkg = pkgs[pkgs.length-1]
+                {
+                    name: name,
+                    version: pkg.version,
+                    build: pkg.build,
+                    channel: pkg.canonical_channel or pkg.channel or '<no channel>',
+                    features: if pkg.features.length > 0 then pkg.features.join(", ") else "&mdash;"
+                }
 
-                $status = $('<td><input type="checkbox"></td>')
-                $name = $('<td class="package-name">').text(name).data("package-name", name)
-                $installed_version = $('<td>&mdash;</td>')
-                $latest_version = $('<td>').text(latest_version)
-
-                if installed_version?
-                    $status.find('input').attr(checked: 'checked')
-                    $installed_version.text(installed_version)
-
-                $('<tr>').html([$status, $name, $installed_version, $latest_version])
-
-            $table = $('<table class="table table-bordered table-striped">')
-            $table.append($('<thead>').html($headers))
-            $table.append($('<tbody>').html($rows))
-            $table.on("click", ".package-name", @on_name_click)
-            @$el.html($table)
+            @ractive.reset { pkgs: data }
+            $('#tab-pkgs').find('.badge').text(data.length)
+            if not @ractive.el?
+                @ractive.render @el
+            @hide_loading()
 
         on_name_click: (event) =>
-            name = $(event.target).data("package-name")
+            name = $(event.node).data("package-name")
             pkg = @pkgs.get_by_name(name)
             new PackageModal.View({pkg: pkg, envs: @envs, pkgs: @pkgs}).show()
+
+        on_check: (event) =>
+            pkg = $(event.node).parent().next().data('package-name')
+            checked = $(event.node).prop('checked')
+            PackageActionsBar.instance().setMode('available')
+            PackageActionsBar.instance().on_check(pkg, checked)
 
     return {Model: Package, Collection: Packages, View: PackagesView}

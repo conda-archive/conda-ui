@@ -1,14 +1,16 @@
 define [
-    "jquery"
-], ($) ->
+    "jquery",
+    "condajs"
+], ($, conda) ->
+    conda.API_ROOT = '/condajs'
 
-    api = (url, data, success, failure) ->
-        $.ajax({
-            url: "/api/" + url,
-            type: 'POST',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: JSON.stringify(data),
-            success: success,
-            failure: failure,
-        })
+    errored = false
+    error_message = "Could not connect to Conda server. Please restart server and refresh this page."
+    $(document).ajaxError () ->
+        if not errored
+            window.alert(error_message)
+            errored = true
+
+            $('#main-tabs').html("<h2>#{error_message}</h2>")
+
+    return { conda: conda }

@@ -2,12 +2,14 @@ define [
     "jquery"
     "conda_ui/modal"
     "conda_ui/validator"
-], ($, Modal, $Validator) ->
+    "conda_ui/windows_warning_modal"
+], ($, Modal, $Validator, WindowsWarning) ->
 
     class EnvModalView extends Modal.View
 
         initialize: (options) ->
             @envs = options.envs
+            @pkgs = options.pkgs
             super(options)
 
         render_body: () ->
@@ -35,11 +37,37 @@ define [
             })
             @$form
 
+        add_progress: (progress) ->
+            if @$form?
+                @$form.remove()
+            @$progressContainer = $('<div class="progress progress-striped active">')
+            @$progress = $('<div class="progress-bar" role="progressbar">')
+            @$message = $('<p>')
+            @$progressContainer.append(@$progress)
+            @$el.find('.modal-body').append(@$message)
+            @$el.find('.modal-body').append(@$progressContainer)
+
+            progress.progress (info) =>
+                progress = 100 * (info.progress / info.maxval)
+                @$progress.css 'width', "#{progress}%"
+
+                if typeof info.fetch isnt "undefined"
+                    @$message.text 'Fetching... ' + info.fetch
+                else if typeof info.name isnt "undefined"
+                    @$message.text 'Linking...' + info.name
+                else
+                    @$message.text ''
+
+        update_progress: () ->
+
         on_submit: (event) =>
-            @$form.submit()
+            if @$form?
+                @$form.submit()
+            else
+                @on_form_submit()
 
         on_form_submit: (event) =>
-            @doit(@$input.val())
-            @hide()
+            WindowsWarning.warn().then =>
+                @doit(@$input?.val())
 
     return {View: EnvModalView}

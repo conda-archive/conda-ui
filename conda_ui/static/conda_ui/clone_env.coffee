@@ -11,9 +11,23 @@ define [
         submit_text: () -> "Clone"
 
         doit: (new_name) ->
-            api("env/#{@envs.get_active()}/clone/#{new_name}", {}, @on_env_clone)
+            progress = @envs.get_active().attributes.clone({
+                name: new_name
+                progress: true
+                forcePscheck: true
+            })
+            progress.then @on_env_clone(new_name)
 
-        on_env_clone: (data) =>
-            # TODO
+            @add_progress(progress)
+            @disable_buttons()
+
+        on_env_clone: (new_name) =>
+            (data) =>
+                @hide()
+                env = data.env
+                Promise.all([env.linked(), env.revisions()]).then =>
+                    @envs.add env
+                    @envs.set_active new_name
+                    @envs.reset(@envs.models)
 
     return {View: CloneEnvView}
