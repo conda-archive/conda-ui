@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 def build():
     retcode = subprocess.call(
         ["coffee", "--no-header", "-c", join("conda_ui", "static", "conda_ui")],
-        shell=True)
+        shell=(sys.platform == 'win32'))
 
     if retcode != 0:
         raise RuntimeError("compilation failed")
