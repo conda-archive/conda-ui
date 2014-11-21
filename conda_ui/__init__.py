@@ -42,6 +42,8 @@ def start_server(args):
     if not args.debug:
         callback = lambda: webbrowser.open_new_tab('http://localhost:%s' % args.port)
         ioloop.add_callback(callback)
+    else:
+        print("listening at http://localhost:%s" % args.port)
     ioloop.start()
 
 
