@@ -2,33 +2,33 @@ var $ = require("jquery")
 var api = require("conda_ui/api")
 var EnvModal = require("conda_ui/env_modal")
 
-    class DeleteEnvView extends EnvModal.View
+class DeleteEnvView extends EnvModal.View
 
-        title_text: () -> "Delete environment"
+    title_text: () -> "Delete environment"
 
-        render_body: () ->
-            $name = $('<b>').text(@envs.get_active().get('name'))
-            $('<span>').append(["Do you really want to delete ", $name, " environment?"])
+    render_body: () ->
+        $name = $('<b>').text(@envs.get_active().get('name'))
+        $('<span>').append(["Do you really want to delete ", $name, " environment?"])
 
-        submit_text: () -> "Yes, remove this environment"
-        cancel_text: () -> "No, I changed my mind"
+    submit_text: () -> "Yes, remove this environment"
+    cancel_text: () -> "No, I changed my mind"
 
-        submit_type: () -> "danger"
+    submit_type: () -> "danger"
 
-        doit: () =>
-            env = @envs.get_active()
-            # Env.attributes is the conda-js Env object
-            progress = env.attributes.removeEnv({ progress: true, forcePscheck: true })
-            progress.then @on_env_delete
+    doit: () =>
+        env = @envs.get_active()
+        # Env.attributes is the conda-js Env object
+        progress = env.attributes.removeEnv({ progress: true, forcePscheck: true })
+        progress.then @on_env_delete
 
-            @add_progress(progress)
-            @disable_buttons()
+        @add_progress(progress)
+        @disable_buttons()
 
-        on_env_delete: (data) =>
-            @hide()
-            @envs.remove @envs.get_active()
-            @envs.reset @envs.models
-            @envs.set_active 'root'
-            # TODO
+    on_env_delete: (data) =>
+        @hide()
+        @envs.remove @envs.get_active()
+        @envs.reset @envs.models
+        @envs.set_active 'root'
+        # TODO
 
 module.exports.View = DeleteEnvView
