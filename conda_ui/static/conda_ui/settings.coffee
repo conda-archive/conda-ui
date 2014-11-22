@@ -1,10 +1,9 @@
-define [
-    "ractive"
-    "bootstrap_tagsinput"
-    "promise"
-    "conda_ui/api"
-    "conda_ui/modal"
-], (Ractive, $, Promise, api, Modal) ->
+Ractive = require("ractive")
+$ = require("bootstrap_tagsinput")
+Promise = require("promise")
+api = require("conda_ui/api")
+Modal = require("conda_ui/modal")
+
     class SettingsView extends Modal.View
         initialize: (options) ->
             @ractive = new Ractive({
@@ -114,4 +113,4 @@ define [
             api.conda.clean(options).then =>
                 @$('#collapseClean .panel-body').text('Cleaned!')
 
-    return {View: SettingsView}
+module.exports.View = SettingsView

@@ -1,7 +1,5 @@
-define [
-    "jquery"
-    "conda_ui/modal"
-], ($, Modal) ->
+var $ = require('jquery')
+var Modal = require('conda_ui/modal')
 
     class LoadingModalView extends Modal.View
         initialize: (options) ->
@@ -19,4 +17,4 @@ define [
         render_footer: () ->
             # Don't render the buttons in the footer
 
-    return {View: LoadingModalView}
+module.exports.View = LoadingModalView

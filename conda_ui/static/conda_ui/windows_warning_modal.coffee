@@ -1,9 +1,7 @@
-define [
-    "jquery"
-    "conda_ui/modal"
-    "conda_ui/utils"
-    "promise"
-], ($, Modal, utils, Promise) ->
+var $ = require('jquery')
+var Modal = require("conda_ui/modal")
+var utils = require('conda_ui/utils')
+var Promise = require("promise")
 
     class WindowsWarningView extends Modal.View
         initialize: (options) ->
@@ -28,4 +26,4 @@ define [
             else
                 return Promise.resolve(null)
 
-    return { warn: WindowsWarningView.warn_pscheck }
+module.exports.warn = WindowsWarningView.warn_pscheck

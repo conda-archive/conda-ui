@@ -1,13 +1,11 @@
-define [
-    "underscore"
-    "jquery"
-    "backbone"
-    "conda_ui/api"
-    "conda_ui/delete_env"
-    "conda_ui/clone_env"
-    "conda_ui/new_env"
-], (_, $, Backbone, api, DeleteEnv, CloneEnv, NewEnv) ->
-    conda = api.conda
+var _ = require('underscore')
+var $ = require('jquery')
+var Backbone = require('backbone')
+var api = require('conda_ui/api')
+var DeleteEnv = require('conda_ui/delete_env')
+var CloneEnv = require('conda_ui/clone_env')
+var NewEnv = require('conda_ui/new_env')
+conda = api.conda
 
     class Env extends Backbone.Model
         defaults: -> {}
@@ -133,4 +131,6 @@ define [
             @envs.fetch(reset: true)
             @pkgs.fetch(reset: true)
 
-    return {Model: Env, Collection: Envs, View: EnvsView}
+module.exports.Model = Env
+module.exports.Collection = Envs
+module.exports.View = EnvsView

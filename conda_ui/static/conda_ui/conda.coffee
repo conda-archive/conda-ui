@@ -1,3 +1,4 @@
+###
 require.config
     baseUrl: '/static'
     paths:
@@ -40,17 +41,17 @@ require.config
         condajs:
             deps: ['jquery', 'promise', 'sockjs']
             exports: 'conda'
+###
 
-define [
-    "jquery"
-    "conda_ui/envs"
-    "conda_ui/search"
-    "conda_ui/packages"
-    "conda_ui/installed"
-    "conda_ui/history"
-    "conda_ui/settings"
-    "conda_ui/package_actions_bar"
-], ($, Envs, Search, Packages, Installed, History, Settings, PackageActionsBar) ->
+var $ = require("jquery")
+var Envs = require("conda_ui/envs")
+var Search = require("conda_ui/search")
+var Packages = require("conda_ui/packages")
+var Installed = require("conda_ui/installed")
+var History = require("conda_ui/history")
+var Settings = require("conda_ui/settings")
+var PackageActionsBar = require("conda_ui/package_actions_bar")
+
 
     $(document).ready () ->
         envs = new Envs.Collection()

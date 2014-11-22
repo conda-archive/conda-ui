@@ -1,8 +1,6 @@
-define [
-    "jquery"
-    "backbone"
-    "bootstrap"
-], ($, Backbone, $Bootstrap) ->
+$ = require('jquery')
+Backbone = require('backbone')
+$Bootstrap = require('bootstrap')
 
     class ModalView extends Backbone.View
         initialize: (options) ->
@@ -74,4 +72,4 @@ define [
         disable_buttons: () ->
             @$('button').attr('disabled', 'disabled')
 
-    return {View: ModalView}
+module.exports.View = ModalView

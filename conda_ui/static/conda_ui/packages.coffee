@@ -1,13 +1,10 @@
-define [
-    "underscore"
-    "jquery"
-    "backbone"
-    "ractive"
-    "conda_ui/tab_view"
-    "conda_ui/package_modal"
-    "conda_ui/package_actions_bar"
-
-], (_, $, Backbone, Ractive, TabView, PackageModal, PackageActionsBar) ->
+var _ = require('underscore')
+var $ = require('jquery')
+var Ractive = require('ractive')
+var Backbone = require('backbone')
+var TabView = require('conda_ui/tab_view')
+var PackageModal = require('conda_ui/package_modal')
+var PackageActionsBar = require('conda_ui/package_actions_bar')
 
     class Package extends Backbone.Model
         defaults: -> {}
@@ -106,4 +103,6 @@ define [
             PackageActionsBar.instance().setMode('available')
             PackageActionsBar.instance().on_check(pkg, checked)
 
-    return {Model: Package, Collection: Packages, View: PackagesView}
+module.exports.Model = Package
+module.exports.Collection = Packages
+module.exports.View = PackagesView

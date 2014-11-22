@@ -1,7 +1,5 @@
-define [
-    "jquery"
-    "validate"
-], ($, $Validate) ->
+var $ = require('jquery')
+var $Validate = require('validate')
 
     $.validator.setDefaults({
         highlight: (element) ->

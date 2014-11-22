@@ -1,8 +1,6 @@
-define [
-    "jquery"
-    "conda_ui/api"
-    "conda_ui/env_modal"
-], ($, api, EnvModal) ->
+$ = require("jquery")
+api = require("conda_ui/api")
+EnvModal = require("conda_ui/env_modal")
 
     class CloneEnvView extends EnvModal.View
 
@@ -30,4 +28,4 @@ define [
                     @envs.set_active new_name
                     @envs.reset(@envs.models)
 
-    return {View: CloneEnvView}
+module.exports.View = CloneEnvView

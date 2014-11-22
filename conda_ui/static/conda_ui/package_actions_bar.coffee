@@ -1,12 +1,10 @@
-define [
-    "underscore"
-    "jquery"
-    "backbone"
-    "conda_ui/dialog"
-    "conda_ui/plan_modal"
-    "conda_ui/loading_modal"
+var _ = require('underscore')
+var $ = require('jquery')
+var Backbone = require('backbone')
+var Dialog = require('conda_ui/dialog')
+var PlanModal = require('conda_ui/plan_modal')
+var LoadingModal = require('conda_ui/loading_modal')
 
-], (_, $, Backbone, Dialog, PlanModal, LoadingModal) ->
 
     class PackageActionsBar extends Backbone.View
         events:
@@ -110,4 +108,4 @@ define [
             _instance = new PackageActionsBar({ el: el, envs: envs, pkgs: pkgs })
         _instance
 
-    return { instance: instance }
+module.exports.instance = instance

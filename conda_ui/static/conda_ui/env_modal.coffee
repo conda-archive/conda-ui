@@ -1,9 +1,7 @@
-define [
-    "jquery"
-    "conda_ui/modal"
-    "conda_ui/validator"
-    "conda_ui/windows_warning_modal"
-], ($, Modal, $Validator, WindowsWarning) ->
+var $ = require("jquery")
+var Modal = require("conda_ui/modal")
+var Validator = require("conda_ui/validator")
+var WindowsWarning = require("conda_ui/windows_warning_modal")
 
     class EnvModalView extends Modal.View
 
@@ -70,4 +68,4 @@ define [
             WindowsWarning.warn().then =>
                 @doit(@$input?.val())
 
-    return {View: EnvModalView}
+module.exports.View = EnvModalView

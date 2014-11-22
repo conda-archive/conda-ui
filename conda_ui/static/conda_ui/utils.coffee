@@ -1,6 +1,4 @@
-define [
-    "sprintf"
-], (sprintf) ->
+var spritf = require('sprintf')
 
     human_readable = (n) ->
         if n < 1024
@@ -20,8 +18,6 @@ define [
     is_windows_ignored = (name) ->
         name is 'python' or name is 'psutil' or name is 'pycosat'
 
-    return {
-        human_readable: human_readable,
-        on_windows: on_windows,
-        is_windows_ignored: is_windows_ignored
-    }
+module.exports.human_readable = human_readable
+module.exports.on_windows = on_windows
+module.exports.is_windows_ignored = is_windows_ignored

@@ -1,8 +1,6 @@
-define [
-    "jquery"
-    "conda_ui/api"
-    "conda_ui/env_modal"
-], ($, api, EnvModal) ->
+var $ = require("jquery")
+var api = require("conda_ui/api")
+var EnvModal = require("conda_ui/env_modal")
 
     class DeleteEnvView extends EnvModal.View
 
@@ -33,4 +31,4 @@ define [
             @envs.set_active 'root'
             # TODO
 
-    return {View: DeleteEnvView}
+module.exports.View = DeleteEnvView

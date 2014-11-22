@@ -1,13 +1,12 @@
-define [
-    "underscore"
-    "jquery"
-    "backbone"
-    "conda_ui/dialog"
-    "conda_ui/loading_modal"
-    "conda_ui/plan_modal"
-    "conda_ui/tab_view"
-    "condajs"
-], (_, $, Backbone, Dialog, LoadingModal, PlanModal, TabView, conda) ->
+var _ = require('underscore')
+var $ = require('jquery')
+var Backbone = require('backbone')
+var Dialog = require('conda_ui/dialog')
+var LoadingModal = require('conda_ui/loading_modal')
+var PlanModal = require('conda_ui/loading_modal')
+var LoadingModal = require('conda_ui/loading_modal')
+var TabView = require('conda_ui/tab_view')
+var conda = require('condajs')
 
     class HistoryView extends TabView.View
 
@@ -106,4 +105,4 @@ define [
                 else
                     new Dialog.View({ message: data.error, type: "Error" }).show()
 
-    return {View: HistoryView}
+module.exports.View = HistoryView

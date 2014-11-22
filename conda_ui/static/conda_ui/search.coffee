@@ -1,8 +1,6 @@
-define [
-    "underscore"
-    "jquery"
-    "backbone"
-], (_, $, Backbone) ->
+var _ = require('underscore')
+var $ = require('jquery')
+var Backbone = require('backbone')
 
     class SearchView extends Backbone.View
         initialize: (options) ->
@@ -36,4 +34,4 @@ define [
             else
                 @$close.attr(disabled: "disabled")
 
-    return {View: SearchView}
+module.exports.View = SearchView

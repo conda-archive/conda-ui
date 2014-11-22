@@ -1,8 +1,6 @@
-define [
-    "underscore"
-    "jquery"
-    "backbone"
-], (_, $, Backbone) ->
+var _ = require('underscore')
+var $ = require('jquery')
+var Backbone = require('backbone')
     class TabView extends Backbone.View
         initialize: (options) ->
             super(options)
@@ -32,4 +30,4 @@ define [
         hide_loading: ->
             @loading.slideUp()
 
-    return { View: TabView }
+module.exports.View = TabView

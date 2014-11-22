@@ -1,14 +1,12 @@
-define [
-    "underscore"
-    "jquery"
-    "backbone"
-    "ractive"
-    "conda_ui/api"
-    "conda_ui/tab_view"
-    "conda_ui/package_modal"
-    "conda_ui/package_actions_bar"
-    "conda_ui/utils"
-], (_, $, Backbone, Ractive, api, TabView, PackageModal, PackageActionsBar, utils) ->
+var _ = require('underscore')
+var $ = require('jquery')
+var Backbone = require('backbone')
+var Reactive = require('reactive')
+var api = require('conda_ui/dialog')
+var TabView = require('conda_ui/tab_view')
+var PackageModal = require('conda_ui/package_modal')
+var PackageActionsBar = require('conda_ui/package_actions_bar')
+var utils = require('conda_ui/utils')
 
     class InstalledView extends TabView.View
 
@@ -134,4 +132,4 @@ define [
             super()
             @$el.find('.alert').remove()
 
-    return {View: InstalledView}
+module.exports.View = InstalledView

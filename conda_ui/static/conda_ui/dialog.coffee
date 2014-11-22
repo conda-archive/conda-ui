@@ -1,7 +1,5 @@
-define [
-    "jquery"
-    "conda_ui/modal"
-], ($, Modal) ->
+var $ = require("jquery")
+var modal = require("conda_ui/modal")
 
     class DialogView extends Modal.View
         initialize: (options) ->
@@ -16,4 +14,4 @@ define [
         submit_text: () -> null
         cancel_text: () -> "Close"
 
-    return {View: DialogView}
+module.exports.View = DialogView

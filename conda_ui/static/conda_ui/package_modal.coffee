@@ -1,12 +1,10 @@
-define [
-    "underscore"
-    "jquery"
-    "conda_ui/api"
-    "conda_ui/utils"
-    "conda_ui/modal"
-    "conda_ui/dialog"
-    "conda_ui/plan_modal"
-], (_, $, api, utils, Modal, Dialog, PlanModal) ->
+var _ = require('underscore')
+var $ = require('jquery')
+var api = require('conda_ui/api')
+var utils = require('conda_ui/utils')
+var Modal = require('conda_ui/modal')
+var Dialog = require('conda_ui/dialog')
+var PlanModal = require('conda_ui/plan_modal')
     class PackageModalView extends Modal.View
 
         initialize: (options) ->
@@ -146,4 +144,4 @@ define [
             else
                 new Dialog.View({ message: data.error, type: "Error" }).show()
 
-    return {View: PackageModalView}
+module.exports.View = PackageModalView
