@@ -1,12 +1,12 @@
-var _ = require('underscore')
-var $ = require('jquery')
-var Backbone = require('backbone')
-var Dialog = require('conda_ui/dialog')
-var LoadingModal = require('conda_ui/loading_modal')
-var PlanModal = require('conda_ui/loading_modal')
-var LoadingModal = require('conda_ui/loading_modal')
-var TabView = require('conda_ui/tab_view')
-var conda = require('condajs')
+_ = require('underscore')
+$ = require('jquery')
+Backbone = require('backbone')
+Dialog = require('conda_ui/dialog')
+LoadingModal = require('conda_ui/loading_modal')
+PlanModal = require('conda_ui/loading_modal')
+LoadingModal = require('conda_ui/loading_modal')
+TabView = require('conda_ui/tab_view')
+conda = require('condajs')
 
 class HistoryView extends TabView.View
 

@@ -1,6 +1,6 @@
-var _ = require('underscore')
-var $ = require('jquery')
-var Backbone = require('backbone')
+_ = require('underscore')
+$ = require('jquery')
+Backbone = require('backbone')
 
 class SearchView extends Backbone.View
     initialize: (options) ->

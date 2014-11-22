@@ -1,5 +1,5 @@
-var $ = require('jquery')
-var $Validate = require('validate')
+$ = require('jquery')
+$Validate = require('validate')
 
 $.validator.setDefaults({
     highlight: (element) ->

@@ -1,7 +1,7 @@
-var $ = require("jquery")
-var Modal = require("conda_ui/modal")
-var Validator = require("conda_ui/validator")
-var WindowsWarning = require("conda_ui/windows_warning_modal")
+$ = require("jquery")
+Modal = require("conda_ui/modal")
+Validator = require("conda_ui/validator")
+WindowsWarning = require("conda_ui/windows_warning_modal")
 
 class EnvModalView extends Modal.View
 

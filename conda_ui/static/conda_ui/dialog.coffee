@@ -1,5 +1,5 @@
-var $ = require("jquery")
-var modal = require("conda_ui/modal")
+$ = require("jquery")
+modal = require("conda_ui/modal")
 
 class DialogView extends Modal.View
     initialize: (options) ->

@@ -1,10 +1,10 @@
-var _ = require('underscore')
-var $ = require('jquery')
-var api = require('conda_ui/api')
-var utils = require('conda_ui/utils')
-var Modal = require('conda_ui/modal')
-var Dialog = require('conda_ui/dialog')
-var PlanModal = require('conda_ui/plan_modal')
+_ = require('underscore')
+$ = require('jquery')
+api = require('conda_ui/api')
+utils = require('conda_ui/utils')
+Modal = require('conda_ui/modal')
+Dialog = require('conda_ui/dialog')
+PlanModal = require('conda_ui/plan_modal')
 
 class PackageModalView extends Modal.View
 

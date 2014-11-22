@@ -1,6 +1,6 @@
 
-var $ = require('jquery')
-var conda = require("condajs")
+$ = require('jquery')
+conda = require("condajs")
 conda.API_ROOT = '/condajs'
 
 errored = false

@@ -43,14 +43,14 @@ require.config
             exports: 'conda'
 ###
 
-var $ = require("jquery")
-var Envs = require("conda_ui/envs")
-var Search = require("conda_ui/search")
-var Packages = require("conda_ui/packages")
-var Installed = require("conda_ui/installed")
-var History = require("conda_ui/history")
-var Settings = require("conda_ui/settings")
-var PackageActionsBar = require("conda_ui/package_actions_bar")
+$ = require("jquery")
+Envs = require("conda_ui/envs")
+Search = require("conda_ui/search")
+Packages = require("conda_ui/packages")
+Installed = require("conda_ui/installed")
+History = require("conda_ui/history")
+Settings = require("conda_ui/settings")
+PackageActionsBar = require("conda_ui/package_actions_bar")
 
 
 $(document).ready () ->

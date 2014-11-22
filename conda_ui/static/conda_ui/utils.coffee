@@ -1,4 +1,4 @@
-var spritf = require('sprintf')
+spritf = require('sprintf')
 
 human_readable = (n) ->
     if n < 1024
