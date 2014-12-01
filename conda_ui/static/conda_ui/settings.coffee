@@ -1,8 +1,8 @@
 Ractive = require("ractive")
-$ = require("bootstrap_tagsinput")
+$ = require("../bootstrap_tagsinput")
 Promise = require("promise")
-api = require("conda_ui/api")
-Modal = require("conda_ui/modal")
+api = require("api")
+Modal = require("modal")
 
 class SettingsView extends Modal.View
     initialize: (options) ->

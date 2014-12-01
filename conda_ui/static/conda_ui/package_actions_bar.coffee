@@ -1,9 +1,9 @@
 _ = require('underscore')
 $ = require('jquery')
 Backbone = require('backbone')
-Dialog = require('conda_ui/dialog')
-PlanModal = require('conda_ui/plan_modal')
-LoadingModal = require('conda_ui/loading_modal')
+Dialog = require('dialog')
+PlanModal = require('plan_modal')
+LoadingModal = require('loading_modal')
 
 
 class PackageActionsBar extends Backbone.View

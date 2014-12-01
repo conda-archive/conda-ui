@@ -2,9 +2,9 @@ _ = require('underscore')
 $ = require('jquery')
 Ractive = require('ractive')
 Backbone = require('backbone')
-TabView = require('conda_ui/tab_view')
-PackageModal = require('conda_ui/package_modal')
-PackageActionsBar = require('conda_ui/package_actions_bar')
+TabView = require('tab_view')
+PackageModal = require('package_modal')
+PackageActionsBar = require('package_actions_bar')
 
 class Package extends Backbone.Model
     defaults: -> {}

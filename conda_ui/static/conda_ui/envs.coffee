@@ -1,10 +1,10 @@
 _ = require('underscore')
 $ = require('jquery')
 Backbone = require('backbone')
-api = require('conda_ui/api')
-DeleteEnv = require('conda_ui/delete_env')
-CloneEnv = require('conda_ui/clone_env')
-NewEnv = require('conda_ui/new_env')
+api = require('api')
+DeleteEnv = require('delete_env')
+CloneEnv = require('clone_env')
+NewEnv = require('new_env')
 conda = api.conda
 
 class Env extends Backbone.Model

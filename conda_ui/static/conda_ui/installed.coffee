@@ -1,12 +1,12 @@
 _ = require('underscore')
 $ = require('jquery')
 Backbone = require('backbone')
-Reactive = require('reactive')
-api = require('conda_ui/dialog')
-TabView = require('conda_ui/tab_view')
-PackageModal = require('conda_ui/package_modal')
-PackageActionsBar = require('conda_ui/package_actions_bar')
-utils = require('conda_ui/utils')
+Ractive = require('ractive')
+api = require('dialog')
+TabView = require('tab_view')
+PackageModal = require('package_modal')
+PackageActionsBar = require('package_actions_bar')
+utils = require('utils')
 
 class InstalledView extends TabView.View
 

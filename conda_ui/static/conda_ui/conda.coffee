@@ -44,13 +44,13 @@ require.config
 ###
 
 $ = require("jquery")
-Envs = require("conda_ui/envs")
-Search = require("conda_ui/search")
-Packages = require("conda_ui/packages")
-Installed = require("conda_ui/installed")
-History = require("conda_ui/history")
-Settings = require("conda_ui/settings")
-PackageActionsBar = require("conda_ui/package_actions_bar")
+Envs = require("envs")
+Search = require("search")
+Packages = require("packages")
+Installed = require("installed")
+History = require("history")
+Settings = require("settings")
+PackageActionsBar = require("package_actions_bar")
 
 
 $(document).ready () ->

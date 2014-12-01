@@ -1,10 +1,10 @@
 _ = require('underscore')
 $ = require('jquery')
-api = require('conda_ui/api')
-utils = require('conda_ui/utils')
-Modal = require('conda_ui/modal')
-Dialog = require('conda_ui/dialog')
-WindowsWarning = require('conda_ui/windows_warning_modal')
+api = require('api')
+utils = require('utils')
+Modal = require('modal')
+Dialog = require('dialog')
+WindowsWarning = require('windows_warning_modal')
 
 class PlanModalView extends Modal.View
 

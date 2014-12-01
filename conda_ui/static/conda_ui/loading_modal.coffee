@@ -1,5 +1,5 @@
 $ = require('jquery')
-Modal = require('conda_ui/modal')
+Modal = require('modal')
 
 class LoadingModalView extends Modal.View
     initialize: (options) ->

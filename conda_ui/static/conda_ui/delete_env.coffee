@@ -1,6 +1,6 @@
 $ = require("jquery")
-api = require("conda_ui/api")
-EnvModal = require("conda_ui/env_modal")
+api = require("api")
+EnvModal = require("env_modal")
 
 class DeleteEnvView extends EnvModal.View
 

@@ -1,6 +1,6 @@
 $ = require('jquery')
-Modal = require("conda_ui/modal")
-utils = require('conda_ui/utils')
+Modal = require("modal")
+utils = require('utils')
 Promise = require("promise")
 
 class WindowsWarningView extends Modal.View
