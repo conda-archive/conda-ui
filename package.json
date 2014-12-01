@@ -19,18 +19,20 @@
     "gulp-util": "^3.0.1",
     "jquery": "^2.1.1",
     "vinyl-source-stream": "^1.0.0"
-  }
+  },
   "browser": {
-    'jquery': 'jquery-2.1.1/jquery.min'
-    'validate': 'validate-1.12.0/jquery.validate.min'
-    'sprintf': 'sprintf-1.0.0/sprintf.min'
-    'underscore': 'underscore-1.6.0/underscore.min'
-    'backbone': 'backbone-1.1.2/backbone.min'
-    'bootstrap': 'bootstrap-3.1.1/js/bootstrap.min'
-    'bootstrap_tagsinput': 'bootstrap-tagsinput-0.3.9/js/bootstrap-tagsinput.min'
-    'ractive': 'ractivejs-0.5.5/ractive'
-    'promise': 'promise-4.0.0/promise'
-    'sockjs': 'sockjs-0.3/sockjs'
-    'condajs': 'conda-js/conda'
+    "paths": {
+      "jquery": "./conda_ui/static/jquery-2.1.1/jquery.min.js",
+      "validate": "./conda_ui/static/validate-1.12.0/jquery.validate.min.js",
+      "sprintf": "./conda_ui/static/sprintf-1.0.0/sprintf.min.js",
+      "underscore": "./conda_ui/static/underscore-1.6.0/underscore.min.js",
+      "backbone": "./conda_ui/static/backbone-1.1.2/backbone.min.js",
+      "bootstrap": "./conda_ui/static/bootstrap-3.1.1/js/bootstrap.min.js",
+      "bootstrap_tagsinput": "./conda_ui/static/bootstrap-tagsinput-0.3.9/js/bootstrap-tagsinput.min.js",
+      "ractive": "./conda_ui/static/ractivejs-0.5.5/ractive.js",
+      "promise": "./conda_ui/static/promise-4.0.0/promise.js",
+      "sockjs": "./conda_ui/static/sockjs-0.3/sockjs.js",
+      "condajs": "./conda_ui/static/conda-js/conda.js"
+    }
   }
 }
