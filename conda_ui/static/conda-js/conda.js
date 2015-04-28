@@ -503,7 +503,9 @@ function factory(api) {
                 }
                 return Promise.all(promises).then(function(pkgs) {
                     this.installed = {};
-                    pkgs.forEach(function(pkg) {
+                    pkgs.filter(function(pkg) {
+                        return pkg !== null;
+                    }).forEach(function(pkg) {
                         this.installed[pkg.name] = pkg;
                     }.bind(this));
                     return pkgs;
@@ -766,7 +768,9 @@ function factory(api) {
 
         Package.prototype.reload = function() {
             return Package.load(this.fn).then(function(pkg) {
-                this.info = pkg.info;
+                if (pkg !== null) {
+                    this.info = pkg.info;
+                }
             }.bind(this));
         };
 
@@ -879,11 +883,17 @@ function factory(api) {
                 return index().then(function(search_cache) {
                     var spec = Package.splitFn(fn);
                     var packages = search_cache[spec.name];
+
                     if (typeof packages === "undefined") {
                         return api('info', {}, fn + '.tar.bz2').then(function(info) {
                             info = info[fn + '.tar.bz2'];
-                            var pkg = new Package(fn, info);
-                            return pkg;
+
+                            if (typeof info === "undefined") {
+                                console.warn("no package metadata for " + fn);
+                                return null;
+                            } else {
+                                return new Package(fn, info);
+                            }
                         });
                     }
 
